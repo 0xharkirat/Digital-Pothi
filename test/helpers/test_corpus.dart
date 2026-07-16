@@ -12,8 +12,13 @@ const kLineC = 'ਹੋਰ ਸ਼ਬਦ ਦੀ ਬਿਲਕੁਲ ਵਖਰੀ �
 
 /// A line in a second source (Dasam) on the same page number as [kLineA] -
 /// proves Ang search stays source-scoped. Far order_id keeps it out of the
-/// tracker's ±150 windows.
+/// tracker's ±150 windows. NULL source_line, true to the Dasam corpus.
 const kLineD = 'ਦਸਮ ਤੁਕ ਪੰਨਾ ਚਾਰ';
+
+/// A kirtan-shaped shabad (S4, ids k0..k6) for the intelligent spacebar:
+/// [Sirlekh, Manglacharan] headers on ang line 1, an antara couplet sharing
+/// line 2, the rahao (home) line on line 3, a second couplet sharing line 4.
+const kKirtanShabad = 'S4';
 
 /// A three-line in-memory stand-in for the 141k-line corpus: same schema, same
 /// FTS5 index, so `locate` / `windowAround` / `search*` run for real in tests.
@@ -22,19 +27,33 @@ GurbaniDatabase openTestCorpus() {
     ..execute(
       'CREATE TABLE lines (id TEXT PRIMARY KEY, shabad_id TEXT, '
       'gurmukhi_uni TEXT, source_page INTEGER, order_id INTEGER, '
-      'first_letters TEXT, first_letters_uni TEXT)',
+      'first_letters TEXT, first_letters_uni TEXT, '
+      'type_id INTEGER, source_line INTEGER)',
     )
     ..execute(
       'CREATE TABLE bani_lines (line_id TEXT, bani_id INTEGER, line_group INTEGER)',
     )
     // Inserted out of order_id order, to prove the queries sort by it. Columns:
-    // id, shabad, gurmukhi, ang, order_id, first_letters (roman), first_letters_uni.
+    // id, shabad, gurmukhi, ang, order_id, first_letters (roman),
+    // first_letters_uni, type_id, source_line.
     ..execute(
       "INSERT INTO lines VALUES "
-      "('b','S1','$kLineB',4,20,'bbnujbpb','ਭਭਨਉਜਬਪਭ'),"
-      "('a','S1','$kLineA',4,10,'ssnhjslv','ਸਸਨਹਜਸਲਵ'),"
-      "('c','S2','$kLineC',9,30,'hsdbvt','ਹਸਦਬਵਤ'),"
-      "('d','S3','$kLineD',4,5000,'dtpc','ਦਤਪਚ')",
+      "('b','S1','$kLineB',4,20,'bbnujbpb','ਭਭਨਉਜਬਪਭ',4,2),"
+      "('a','S1','$kLineA',4,10,'ssnhjslv','ਸਸਨਹਜਸਲਵ',4,1),"
+      "('c','S2','$kLineC',9,30,'hsdbvt','ਹਸਦਬਵਤ',4,1),"
+      "('d','S3','$kLineD',4,5000,'dtpc','ਦਤਪਚ',4,NULL)",
+    )
+    // The kirtan shabad: types 2,1 = headers; 3 = rahao; 4 = pankti. Couplets
+    // share a source_line; the rahao sits alone on its own line.
+    ..execute(
+      "INSERT INTO lines VALUES "
+      "('k0','S4','ਸਿਰਲੇਖ ਮਹਲਾ ੫ ॥',100,10100,'k0f','ਕ',2,1),"
+      "('k1','S4','ੴ ਸਤਿਗੁਰ ਪ੍ਰਸਾਦਿ ॥',100,10101,'k1f','ਕ',1,1),"
+      "('k2','S4','ਪਹਿਲੀ ਅੰਤਰਾ ਤੁਕ ਇਕ ॥',100,10102,'k2f','ਕ',4,2),"
+      "('k3','S4','ਪਹਿਲੀ ਅੰਤਰਾ ਤੁਕ ਦੋ ॥',100,10103,'k3f','ਕ',4,2),"
+      "('k4','S4','ਘਰ ਦੀ ਤੁਕ ॥ ਰਹਾਉ ॥',100,10104,'k4f','ਕ',3,3),"
+      "('k5','S4','ਦੂਜੀ ਅੰਤਰਾ ਤੁਕ ਇਕ ॥',100,10105,'k5f','ਕ',4,4),"
+      "('k6','S4','ਦੂਜੀ ਅੰਤਰਾ ਤੁਕ ਦੋ ॥',100,10106,'k6f','ਕ',4,4)",
     )
     ..execute("INSERT INTO bani_lines VALUES ('a',1,0),('b',1,0)")
     // Self-contained Sundar Gutka tables (built by fetch_bani_lengths.py). Bani 1
@@ -70,7 +89,8 @@ GurbaniDatabase openTestCorpus() {
       'section_id INTEGER)',
     )
     ..execute(
-      "INSERT INTO shabads VALUES ('S1',1,1,1),('S2',1,2,2),('S3',2,1,1)",
+      "INSERT INTO shabads VALUES "
+      "('S1',1,1,1),('S2',1,2,2),('S3',2,1,1),('S4',1,1,1)",
     )
     ..execute(
       'CREATE TABLE sources (id INTEGER, name_gurmukhi TEXT, name_english TEXT)',

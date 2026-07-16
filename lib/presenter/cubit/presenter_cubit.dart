@@ -17,6 +17,7 @@ const _kFontScale = 'fontScale';
 const _kDisplayBg = 'displayBg';
 const _kHistory = 'history';
 const _kFavorites = 'favorites';
+const _kIntelligentSpacebar = 'intelligentSpacebar';
 
 /// Drives the presenter: search the corpus, load a shabad, and choose which line
 /// is shown. The shown line comes from one of two places - the operator (search
@@ -49,6 +50,7 @@ class PresenterCubit extends Cubit<PresenterState> {
     displayBg: DisplayBg.values[p.getInt(_kDisplayBg) ?? DisplayBg.navy.index],
     history: _decodeEntries(p.getString(_kHistory)),
     favorites: _decodeEntries(p.getString(_kFavorites)),
+    intelligentSpacebar: p.getBool(_kIntelligentSpacebar) ?? true,
   );
 
   static List<HistoryEntry> _decodeEntries(String? json) {
@@ -167,6 +169,69 @@ class PresenterCubit extends Cubit<PresenterState> {
   void nextLine() => showLine(state.current + 1);
   void prevLine() => showLine(state.current - 1);
 
+  /// STTM's intelligent spacebar (`intelligentNextVerse` in change-verse.js) -
+  /// space maps here; arrows stay plain. At home it resumes the antara run;
+  /// away it walks the current couplet (same physical ang line) and snaps back
+  /// home at the line boundary. Documented deviations from STTM: header-skip
+  /// is type-driven ([Verse.isHeader]), home index 0 is valid, and at-home is
+  /// derived from the shown line instead of a stored flag.
+  void advance() {
+    final home = state.homeIndex;
+    if (home == -1) return nextLine(); // banis / quick-inserts: plain
+    if (!state.intelligentSpacebar) return _advanceTo(home); // snap home
+    final n = state.shabad.length;
+    if (state.atHome) {
+      // Resume the run where it left off, skipping headers.
+      var next = state.resumeIndex == -1 ? 0 : state.resumeIndex + 1;
+      if (next >= n) next = 0;
+      next = _skipHeaders(next);
+      // STTM steps past a home collision without re-skipping headers; the
+      // wrap guard is ours (STTM overflows here).
+      if (next == home) next = (next + 1) % n;
+      _advanceTo(next, resumeIndex: next);
+    } else {
+      var cand = state.current + 1;
+      // STTM wraps via its out-of-range guard, without a header skip.
+      cand = cand >= n ? 0 : _skipHeaders(cand);
+      final cur = state.shabad[state.current];
+      final nxt = state.shabad[cand];
+      // NULL source_line (Dasam) never matches: strict alternation there.
+      if (cur.sourceLine != null && cur.sourceLine == nxt.sourceLine) {
+        _advanceTo(cand, resumeIndex: cand); // walk the couplet
+      } else {
+        _advanceTo(home); // snap home; the run pointer stays put
+      }
+    }
+  }
+
+  int _skipHeaders(int i) {
+    var j = i;
+    while (j < state.shabad.length - 1 && state.shabad[j].isHeader) {
+      j++;
+    }
+    return j;
+  }
+
+  /// One emission for a spacebar move: line + display + run bookkeeping, and
+  /// manual control (following off) - never `showLine` plus a second emit.
+  void _advanceTo(int index, {int? resumeIndex}) => emit(
+    state.copyWith(
+      current: index,
+      display: index < _displays.length
+          ? _displays[index]
+          : _db.displayFor(state.shabad[index].id),
+      following: false,
+      resumeIndex: resumeIndex,
+    ),
+  );
+
+  /// Re-home the shabad to [index] (STTM's `changeHomeVerse` - a bare setter;
+  /// the run bookkeeping is untouched).
+  void setHome(int index) {
+    if (index < 0 || index >= state.shabad.length) return;
+    emit(state.copyWith(homeIndex: index));
+  }
+
   /// Step to the next / previous shabad in reading order (Ang order), opening it
   /// at its first line. No-op past the ends of the corpus.
   void nextShabad() {
@@ -205,6 +270,11 @@ class PresenterCubit extends Cubit<PresenterState> {
   void toggleVishraam() {
     _prefs.setBool(_kVishraam, value: !state.vishraam);
     emit(state.copyWith(vishraam: !state.vishraam));
+  }
+
+  void toggleIntelligentSpacebar() {
+    _prefs.setBool(_kIntelligentSpacebar, value: !state.intelligentSpacebar);
+    emit(state.copyWith(intelligentSpacebar: !state.intelligentSpacebar));
   }
 
   /// Nudge the font scale within sensible bounds.
@@ -286,6 +356,8 @@ class PresenterCubit extends Cubit<PresenterState> {
         display: _displays.first,
         following: false,
         history: history,
+        homeIndex: -1, // banis have no home: space stays plain
+        resumeIndex: -1,
       ),
     );
   }
@@ -340,6 +412,8 @@ class PresenterCubit extends Cubit<PresenterState> {
         author: '',
         section: '',
         following: false,
+        homeIndex: -1, // known punt: the slide replaces the shabad, so the
+        resumeIndex: -1, // home is gone until it's reopened (backlog A15)
       ),
     );
   }
@@ -351,6 +425,12 @@ class PresenterCubit extends Cubit<PresenterState> {
     if (ctx.lines.isEmpty) return;
     final idx = ctx.lines.indexWhere((v) => v.id == lineId);
     final shown = ctx.lines[idx < 0 ? 0 : idx];
+    // Home initializes only on an actual shabad swap - a same-shabad call (the
+    // tracker moving within the shabad, re-tapping a search hit) must not make
+    // home chase the shown line. STTM likewise resets only when the shabad id
+    // changes.
+    final sameShabad =
+        state.shabad.isNotEmpty && ctx.lines.first.id == state.shabad.first.id;
     final entry = HistoryEntry(
       lineId: lineId,
       gurmukhi: shown.gurmukhi,
@@ -370,6 +450,8 @@ class PresenterCubit extends Cubit<PresenterState> {
         display: _db.displayFor(lineId),
         following: following,
         history: history,
+        homeIndex: sameShabad ? state.homeIndex : (idx < 0 ? 0 : idx),
+        resumeIndex: sameShabad ? state.resumeIndex : -1,
       ),
     );
   }

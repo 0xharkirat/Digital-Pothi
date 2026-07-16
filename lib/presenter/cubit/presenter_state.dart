@@ -57,6 +57,9 @@ class PresenterState extends Equatable {
     this.favorites = const [],
     this.baniLength = BaniLength.short,
     this.englishBaniNames = false,
+    this.homeIndex = -1,
+    this.resumeIndex = -1,
+    this.intelligentSpacebar = true,
   });
 
   final String query;
@@ -103,6 +106,25 @@ class PresenterState extends Equatable {
 
   /// Show bani names in English rather than the default Gurmukhi.
   final bool englishBaniNames;
+
+  /// The home (asthaai) line of the loaded shabad, STTM's `homeVerse`.
+  /// -1 = none (banis, quick-inserts), following the [current] convention;
+  /// 0 is a valid home (STTM's falsy-zero bug is deliberately not ported).
+  final int homeIndex;
+
+  /// STTM's `previousVerseIndex`: where the antara run resumes after a snap
+  /// home - NOT "the verse shown before". Only [PresenterCubit.advance] and
+  /// the shabad-load path write it. -1 = no run yet.
+  final int resumeIndex;
+
+  /// STTM's intelligent spacebar: space alternates run/home instead of
+  /// snapping straight home. Persisted; on by default.
+  final bool intelligentSpacebar;
+
+  /// Space is "at home" when the shown line IS the home line - derived, not
+  /// stored (deliberate deviation from STTM, which stores a flag that goes
+  /// stale under manual navigation and dead-presses).
+  bool get atHome => homeIndex != -1 && current == homeIndex;
 
   Verse? get line =>
       current >= 0 && current < shabad.length ? shabad[current] : null;
@@ -160,6 +182,9 @@ class PresenterState extends Equatable {
     List<HistoryEntry>? favorites,
     BaniLength? baniLength,
     bool? englishBaniNames,
+    int? homeIndex,
+    int? resumeIndex,
+    bool? intelligentSpacebar,
   }) => PresenterState(
     query: query ?? this.query,
     mode: mode ?? this.mode,
@@ -181,6 +206,9 @@ class PresenterState extends Equatable {
     favorites: favorites ?? this.favorites,
     baniLength: baniLength ?? this.baniLength,
     englishBaniNames: englishBaniNames ?? this.englishBaniNames,
+    homeIndex: homeIndex ?? this.homeIndex,
+    resumeIndex: resumeIndex ?? this.resumeIndex,
+    intelligentSpacebar: intelligentSpacebar ?? this.intelligentSpacebar,
   );
 
   // `display` is derived from `current`, so it's left out - `current` already
@@ -206,5 +234,8 @@ class PresenterState extends Equatable {
     favorites,
     baniLength,
     englishBaniNames,
+    homeIndex,
+    resumeIndex,
+    intelligentSpacebar,
   ];
 }

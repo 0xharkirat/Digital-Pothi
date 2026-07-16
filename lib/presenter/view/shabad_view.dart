@@ -53,7 +53,8 @@ class _ShabadViewState extends State<ShabadView> {
       buildWhen: (a, b) =>
           a.shabad != b.shabad ||
           a.current != b.current ||
-          a.following != b.following,
+          a.following != b.following ||
+          a.homeIndex != b.homeIndex,
       builder: (context, state) {
         if (state.shabad.isEmpty) {
           return Center(
@@ -79,6 +80,12 @@ class _ShabadViewState extends State<ShabadView> {
                   verse: state.shabad[i],
                   selected: i == state.current,
                   following: i == state.current && state.following,
+                  // Home only exists for corpus shabads (homeIndex == -1 for
+                  // banis and quick-inserts hides the affordance entirely).
+                  isHome: state.homeIndex != -1 && i == state.homeIndex,
+                  onSetHome: state.homeIndex != -1
+                      ? () => cubit.setHome(i)
+                      : null,
                   onTap: () => cubit.showLine(i),
                 ),
               ),
@@ -157,17 +164,22 @@ class _LineRow extends StatelessWidget {
     required this.verse,
     required this.selected,
     required this.following,
+    required this.isHome,
+    required this.onSetHome,
     required this.onTap,
   });
 
   final Verse verse;
   final bool selected;
   final bool following;
+  final bool isHome;
+  final VoidCallback? onSetHome;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final g = context.gurbani;
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       child: AnimatedContainer(
@@ -193,10 +205,36 @@ class _LineRow extends StatelessWidget {
                 ),
               ),
             ),
+            if (verse.isRahao)
+              Container(
+                margin: const EdgeInsets.only(left: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: g.accent.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  'ਰਹਾਉ',
+                  style: g.gurmukhi.copyWith(fontSize: 12, color: g.accent),
+                ),
+              ),
             if (following)
               Icon(Icons.graphic_eq, size: 16, color: g.accent)
             else if (selected)
               Icon(Icons.check, size: 16, color: g.accent),
+            if (onSetHome != null)
+              IconButton(
+                onPressed: onSetHome,
+                icon: Icon(isHome ? Icons.home : Icons.home_outlined),
+                iconSize: 16,
+                visualDensity: VisualDensity.compact,
+                tooltip: isHome ? 'Home line' : 'Set home line',
+                color: isHome
+                    ? g.accent
+                    : theme.colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.35,
+                      ),
+              ),
           ],
         ),
       ),

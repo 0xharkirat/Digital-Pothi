@@ -36,7 +36,8 @@ class SettingsDrawer extends StatelessWidget {
               a.vishraam != b.vishraam ||
               a.fontScale != b.fontScale ||
               a.displayBg != b.displayBg ||
-              a.baniLength != b.baniLength,
+              a.baniLength != b.baniLength ||
+              a.intelligentSpacebar != b.intelligentSpacebar,
           builder: (context, state) => ListView(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             children: [
@@ -63,6 +64,11 @@ class SettingsDrawer extends StatelessWidget {
                     label: 'Vishraam',
                     on: state.vishraam,
                     onTap: presenter.toggleVishraam,
+                  ),
+                  _Toggle(
+                    label: 'Intelligent spacebar',
+                    on: state.intelligentSpacebar,
+                    onTap: presenter.toggleIntelligentSpacebar,
                   ),
                 ],
               ),
