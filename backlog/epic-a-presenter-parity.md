@@ -158,3 +158,15 @@ Collections group saved shabads into named lists, stored locally.
 - [ ] Create / rename / delete a collection.
 - [ ] Add or remove a shabad to a collection from the shabad pane.
 - [ ] Browse a collection and reopen from it.
+
+## A15 - Operator console density pass (STTM-grade real estate) 🔴 P1
+
+**Area:** presenter/layout · **GitHub:** [#42](https://github.com/0xharkirat/Digital-Pothi/issues/42) · Milestone M1
+
+Side-by-side with STTM, the operator surface reads like a Material form, not a pro console.
+Root cause: form components (floating-label dropdowns, outlined boxes, rounded inset cards) doing toolbar jobs, plus an AppBar that spends 64px on a title.
+
+**Acceptance:**
+- [ ] AppBar replaced by a slim icon rail; search mode + filters collapse to one toolbar row (chips + text dropdowns, no outlines).
+- [ ] Full-bleed panes separated by luminance/1px seams; compact density; results/shabad panes flex-share (no dead void).
+- [ ] Home icons hover-reveal; STTM-style source facet strip under the results.
