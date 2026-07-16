@@ -155,15 +155,7 @@ class PresenterCubit extends Cubit<PresenterState> {
   /// Move within the shown shabad (arrows / tapping a line). Also manual.
   void showLine(int index) {
     if (index < 0 || index >= state.shabad.length) return;
-    emit(
-      state.copyWith(
-        current: index,
-        display: index < _displays.length
-            ? _displays[index]
-            : _db.displayFor(state.shabad[index].id),
-        following: false,
-      ),
-    );
+    _advanceTo(index);
   }
 
   void nextLine() => showLine(state.current + 1);
@@ -195,8 +187,13 @@ class PresenterCubit extends Cubit<PresenterState> {
       cand = cand >= n ? 0 : _skipHeaders(cand);
       final cur = state.shabad[state.current];
       final nxt = state.shabad[cand];
-      // NULL source_line (Dasam) never matches: strict alternation there.
-      if (cur.sourceLine != null && cur.sourceLine == nxt.sourceLine) {
+      // A physical ang line is (page, source_line) - line numbers restart
+      // each ang, so a page-crossing shabad must not chain 19->19. NULL
+      // source_line (Dasam) never matches: strict alternation there. (STTM
+      // compares lineNo alone - a ported-then-fixed upstream flaw.)
+      if (cur.sourceLine != null &&
+          cur.sourceLine == nxt.sourceLine &&
+          cur.page == nxt.page) {
         _advanceTo(cand, resumeIndex: cand); // walk the couplet
       } else {
         _advanceTo(home); // snap home; the run pointer stays put
@@ -212,8 +209,9 @@ class PresenterCubit extends Cubit<PresenterState> {
     return j;
   }
 
-  /// One emission for a spacebar move: line + display + run bookkeeping, and
-  /// manual control (following off) - never `showLine` plus a second emit.
+  /// One emission for any line move: line + display + manual control
+  /// (following off), plus the run pointer when a spacebar move sets one -
+  /// never a show plus a second bookkeeping emit.
   void _advanceTo(int index, {int? resumeIndex}) => emit(
     state.copyWith(
       current: index,
