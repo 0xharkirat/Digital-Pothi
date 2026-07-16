@@ -1,0 +1,6 @@
+{
+  "enabledPlugins": {
+    "vgv-ai-flutter-plugin@very-good-claude-code-marketplace": true,
+    "vgv-wingspan@very-good-claude-code-marketplace": true
+  }
+}
