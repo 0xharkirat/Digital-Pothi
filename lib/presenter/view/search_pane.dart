@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show FilteringTextInputFormatter;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/gurbani_database.dart';
@@ -39,8 +40,16 @@ class _SearchPaneState extends State<SearchPane> {
   @override
   void initState() {
     super.initState();
-    // Adopt whatever mode the cubit is in (e.g. after a hot reload).
-    final mode = context.read<PresenterCubit>().state.mode;
+    // Adopt whatever the cubit holds (pane recreated across the layout
+    // breakpoint, hot reload): seed the right box from the live query so an
+    // active Ang search doesn't strand the cubit in ang mode with empty boxes.
+    final state = context.read<PresenterCubit>().state;
+    final mode = state.mode;
+    if (mode == SearchMode.ang) {
+      _ang.text = state.query;
+    } else {
+      _query.text = state.query;
+    }
     _english = mode == SearchMode.fullWordEnglish;
     _fullWord =
         mode == SearchMode.fullWordGurmukhi ||
@@ -212,6 +221,7 @@ class _SearchPaneState extends State<SearchPane> {
                   key: const Key('ang_field'),
                   controller: _ang,
                   keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   onChanged: _onAngChanged,
                   onSubmitted: (_) => _openFirst(),
                   style: theme.textTheme.bodyMedium,
@@ -233,8 +243,11 @@ class _SearchPaneState extends State<SearchPane> {
           ),
           const SizedBox(height: 4),
           // Weightless text filters, right-aligned like STTM's "Filter by".
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+          // A Wrap, so a long selected name on a narrow pane flows to a second
+          // row instead of overflowing.
+          Wrap(
+            alignment: WrapAlignment.end,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Text(
                 'Filter by',
@@ -290,7 +303,14 @@ class _SearchPaneState extends State<SearchPane> {
           ),
           // STTM's footer: a per-source colour legend + the result count.
           if (state.results.isNotEmpty)
-            _SourceLegend(results: state.results, names: sourceNames),
+            _SourceLegend(
+              results: state.results,
+              names: sourceNames,
+              // Ang search is uncapped (a page is a page); the others truncate
+              // at the shared query limit.
+              capped: state.mode != SearchMode.ang &&
+                  state.results.length >= kSearchLimit,
+            ),
         ],
       ),
     );
@@ -504,17 +524,21 @@ class _ResultTile extends StatelessWidget {
 }
 
 /// STTM's search footer: a colour legend for the sources present in the
-/// results, and the count ("100+" when the query limit was hit).
+/// results, and the count (with a "+" when the query limit truncated it).
 class _SourceLegend extends StatelessWidget {
-  const _SourceLegend({required this.results, required this.names});
+  const _SourceLegend({
+    required this.results,
+    required this.names,
+    required this.capped,
+  });
   final List<SearchResult> results;
   final Map<int, String> names;
+  final bool capped;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final present = <int>{for (final r in results) r.sourceId}..remove(0);
-    final capped = results.length >= 100;
     return Padding(
       padding: const EdgeInsets.only(top: 6),
       child: Row(

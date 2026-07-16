@@ -244,7 +244,10 @@ class _LineRowState extends State<_LineRow> {
                 onPressed: onSetHome,
                 icon: Icon(isHome ? Icons.home : Icons.home_outlined),
                 iconSize: 16,
-                visualDensity: VisualDensity.compact,
+                // Tight box so the pop-in never shifts the row's other
+                // trailing icons or re-wraps a long line.
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints.tight(const Size(28, 28)),
                 tooltip: isHome ? 'Home line' : 'Set home line',
                 color: isHome
                     ? g.accent
@@ -253,8 +256,8 @@ class _LineRowState extends State<_LineRow> {
                       ),
               )
             else if (onSetHome != null)
-              // Keep the row height stable when the icon pops in.
-              const SizedBox(height: 28),
+              // Reserve the exact same box while hidden.
+              const SizedBox(width: 28, height: 28),
           ],
         ),
       ),

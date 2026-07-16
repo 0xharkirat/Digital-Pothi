@@ -84,6 +84,10 @@ class SearchResult {
   final int sourceId; // corpus `sources` id - drives the result accent colour
 }
 
+/// Search methods cap their results here (Ang search is uncapped - a page is
+/// a page). The view uses it to tell a truncated list from a complete one.
+const kSearchLimit = 40;
+
 /// One row for a search filter dropdown (writers / raags / sources).
 class FilterOption {
   const FilterOption({required this.id, required this.name});
@@ -445,7 +449,7 @@ class GurbaniDatabase {
     int writerId = 0,
     int sectionId = 0,
     int sourceId = 0,
-    int limit = 40,
+    int limit = kSearchLimit,
   }) {
     final query = letters.replaceAll(' ', '');
     if (query.isEmpty) return const [];
@@ -473,7 +477,7 @@ class GurbaniDatabase {
     int writerId = 0,
     int sectionId = 0,
     int sourceId = 0,
-    int limit = 40,
+    int limit = kSearchLimit,
   }) {
     final terms = normalize(
       query,
@@ -503,7 +507,7 @@ class GurbaniDatabase {
     int writerId = 0,
     int sectionId = 0,
     int sourceId = 0,
-    int limit = 40,
+    int limit = kSearchLimit,
   }) {
     final words = query
         .trim()
