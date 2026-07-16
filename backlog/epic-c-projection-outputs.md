@@ -1,5 +1,7 @@
 # Epic C - Projection and Outputs
 
+**GitHub:** [#23](https://github.com/0xharkirat/Digital-Pothi/issues/23) - sub-issues are linked on the parent.
+
 **Goal:** get the shown line onto every surface a gurdwara uses - projector, extended display, OBS, remote viewers - reliably and locally.
 
 **Done already:** the LAN overlay (dart:io HTTP + WebSocket serving a state-delta page, like STTM's projector), per-overlay content control via the `?show=` URL param, and a native fullscreen output window (a system webview pointed at the overlay URL, no second Flutter engine).

@@ -1,5 +1,7 @@
 # Epic E - Foundation and Quality
 
+**GitHub:** [#34](https://github.com/0xharkirat/Digital-Pothi/issues/34) - sub-issues are linked on the parent.
+
 **Goal:** the app is easy to ship, safe to change, and correct.
 
 **Done already:** VGV bloc conventions (single state class, Page / View split), persisted settings / history / favorites via shared_preferences, a growing test suite (77 tests: cubit behaviour, gurmukhi span logic, overlay page + payload, keyboard nav, persistence).

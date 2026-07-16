@@ -1,5 +1,7 @@
 # Epic B - AI Live Transcription and Auto-Follow
 
+**GitHub:** [#16](https://github.com/0xharkirat/Digital-Pothi/issues/16) - sub-issues are linked on the parent.
+
 **Goal:** the app follows a live recitation on its own and gets better over time.
 This is the differentiator; STTM has no equivalent (its voice search is a remote endpoint we replace with on-device ASR).
 

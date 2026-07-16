@@ -12,7 +12,7 @@ The data-sourcing background is in [DATA.md](../DATA.md).
 Each **epic** file is a parent issue.
 Each `##` section inside an epic is a sub-issue of that parent.
 Every sub-issue has a stable id (A1, B2, ...) so it can be referenced from commits and from other issues.
-When we push (after 6pm), we create one GitHub issue per epic, then one sub-issue per section, and link them as parent/child.
+Pushed 2026-07-16: [Digital-Pothi](https://github.com/0xharkirat/Digital-Pothi) - epics #1 #16 #23 #29 #34, milestones M1-M5. GitHub is now the canonical tracker; these files are the mirror.
 
 ## Status and priority
 

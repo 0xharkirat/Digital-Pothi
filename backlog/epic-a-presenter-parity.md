@@ -1,5 +1,7 @@
 # Epic A - Presenter Parity
 
+**GitHub:** [#1](https://github.com/0xharkirat/Digital-Pothi/issues/1) - sub-issues are linked on the parent.
+
 **Goal:** reach feature parity with the SikhiToTheMax desktop app for the operator-driven presenter, so a user switching from STTM loses nothing.
 
 **Reference:** the gap matrix in [UPDATES.md](../UPDATES.md); the STTM source inventory is captured in the parity memory.

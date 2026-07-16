@@ -1,5 +1,7 @@
 # Epic D - Corpus and Data
 
+**GitHub:** [#29](https://github.com/0xharkirat/Digital-Pothi/issues/29) - sub-issues are linked on the parent.
+
 **Goal:** the right Gurbani data on device, local-only at runtime, and a clear path to keep it current.
 
 **Reference:** [DATA.md](../DATA.md) has the full analysis of the three data sources (open ShabadOS SQLite, the BaniDB API, STTM's curated Realm) and why we source what we source.
