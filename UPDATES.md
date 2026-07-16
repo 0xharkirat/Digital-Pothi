@@ -37,7 +37,7 @@ The corpus and all APIs are on-device and local-only. No network calls to BaniDB
 | Prev / next line, tap a line | ✅ | Nav toolbar on the shabad pane. |
 | Prev / next shabad (Ang order) | ✅ | Steps to the adjacent shabad, not just the next line. |
 | Autoscroll to the active line | ✅ | Skips a single-line shabad and lines already on screen. |
-| Home / Rahao marker + snap-back | 🟡 | AI auto-follow drives the active line; an explicit Rahao marker + manual snap is not surfaced. |
+| Home / Rahao marker + snap-back | ✅ | Per-shabad home line (opened-at, re-homeable per row), ਰਹਾਉ badge, STTM intelligent spacebar (setting-gated, on by default). |
 | Next-line preview | ⬜ | |
 | Autoplay (timed advance) | ⬜ | |
 | Akhand Paatt continuous mode | ⬜ | |
@@ -102,7 +102,7 @@ The corpus and all APIs are on-device and local-only. No network calls to BaniDB
 |---|---|---|
 | Workspaces (Single / Presentation / Multi-Pane) | 🟡 | One responsive presentation layout; not switchable presets. |
 | Settings screen | ✅ | An end-drawer (app-bar gear) holding display + background + projector/overlay controls. |
-| Keyboard shortcuts | ✅ | Arrows / space = line, PageUp/Dn = shabad, Home/End, Esc = blank. Focus-search hotkey + ctrl+1..6 not yet. |
+| Keyboard shortcuts | ✅ | Arrows = line, space = intelligent spacebar, PageUp/Dn = shabad, Home/End, Esc = blank; text fields keep their keys. Focus-search hotkey + ctrl+1..6 not yet. |
 
 ## Outputs
 

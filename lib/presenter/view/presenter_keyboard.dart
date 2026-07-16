@@ -29,11 +29,19 @@ class _PresenterKeyboardState extends State<PresenterKeyboard> {
 
   KeyEventResult _onKey(KeyEvent event) {
     if (event is KeyUpEvent) return KeyEventResult.ignored;
+    // Never steal keys while a text field (the search box) has focus - its key
+    // events bubble up here, and a handled space would both advance the line
+    // and never reach the IME, eating the space out of the query.
+    final focused = FocusManager.instance.primaryFocus?.context;
+    if (focused?.findAncestorStateOfType<EditableTextState>() != null) {
+      return KeyEventResult.ignored;
+    }
     final c = context.read<PresenterCubit>();
     final key = event.logicalKey;
-    if (key == LogicalKeyboardKey.arrowDown ||
-        key == LogicalKeyboardKey.arrowRight ||
-        key == LogicalKeyboardKey.space) {
+    if (key == LogicalKeyboardKey.space) {
+      c.advance(); // STTM's intelligent spacebar; plain when no home is set
+    } else if (key == LogicalKeyboardKey.arrowDown ||
+        key == LogicalKeyboardKey.arrowRight) {
       c.nextLine();
     } else if (key == LogicalKeyboardKey.arrowUp ||
         key == LogicalKeyboardKey.arrowLeft) {

@@ -278,6 +278,174 @@ void main() {
       expect(cubit.state.line?.gurmukhi, '');
     });
 
+    group('intelligent spacebar', () {
+      // Open the kirtan-shaped shabad (see test_corpus.dart) at a line.
+      // Indices: 0 Sirlekh(l1) 1 Manglacharan(l1) 2,3 couplet(l2)
+      //          4 rahao(l3)   5,6 couplet(l4)
+      void openAt(String lineId) => cubit.openHistory(
+        HistoryEntry(
+          lineId: lineId,
+          gurmukhi: '',
+          author: '',
+          section: '',
+          page: 100,
+        ),
+      );
+
+      test('opening a shabad homes it to the opened-at line', () {
+        openAt('k4');
+        expect(cubit.state.homeIndex, 4);
+        expect(cubit.state.resumeIndex, -1);
+        expect(cubit.state.atHome, isTrue);
+      });
+
+      test('full STTM alternation trace: resume, walk, snap, wrap', () {
+        openAt('k4');
+        cubit.advance(); // at home: resume skips both headers
+        expect(cubit.state.current, 2);
+        expect(cubit.state.resumeIndex, 2);
+        cubit.advance(); // same source_line: walk the couplet
+        expect(cubit.state.current, 3);
+        expect(cubit.state.resumeIndex, 3);
+        cubit.advance(); // line boundary: snap home, run pointer stays
+        expect(cubit.state.current, 4);
+        expect(cubit.state.resumeIndex, 3);
+        cubit.advance(); // resume+1 collides with home: step past it
+        expect(cubit.state.current, 5);
+        expect(cubit.state.resumeIndex, 5);
+        cubit.advance(); // second couplet
+        expect(cubit.state.current, 6);
+        cubit.advance(); // wrap to 0 (no header skip), boundary: snap home
+        expect(cubit.state.current, 4);
+      });
+
+      test('home index 0 works (STTM falsy-zero bug not ported)', () {
+        openAt('k0');
+        expect(cubit.state.homeIndex, 0);
+        cubit.advance(); // resume from scratch skips the headers
+        expect(cubit.state.current, 2);
+        cubit
+          ..advance() // walk to 3
+          ..advance(); // boundary: snap back to home 0
+        expect(cubit.state.current, 0);
+      });
+
+      test('setting off: space snaps straight home from anywhere', () {
+        openAt('k4');
+        cubit
+          ..toggleIntelligentSpacebar()
+          ..showLine(6)
+          ..advance();
+        expect(cubit.state.current, 4);
+        expect(cubit.state.intelligentSpacebar, isFalse);
+      });
+
+      test('no home: banis and quick-inserts fall back to plain next', () {
+        cubit.showBani(db.banis().first);
+        expect(cubit.state.homeIndex, -1);
+        cubit.advance();
+        expect(cubit.state.current, 1, reason: 'plain nextLine in a bani');
+
+        openAt('k4');
+        cubit.showBlank(); // decision 4 pinned: the slide replaces the shabad
+        expect(cubit.state.homeIndex, -1);
+        cubit.advance();
+        expect(cubit.state.current, 0, reason: 'one-line slide: no-op');
+        expect(cubit.state.line?.id, 'special');
+      });
+
+      test('single-line shabad: space is a visual no-op', () {
+        cubit.openHistory(
+          const HistoryEntry(
+            lineId: 'c',
+            gurmukhi: '',
+            author: '',
+            section: '',
+            page: 9,
+          ),
+        );
+        expect(cubit.state.homeIndex, 0);
+        cubit.advance();
+        expect(cubit.state.current, 0);
+      });
+
+      test('manual nav composes: away advances from the displayed line, '
+          'landing on home resumes the run', () {
+        openAt('k4');
+        cubit.advance(); // run at 2
+        cubit.showLine(5); // operator jumps into the second couplet
+        cubit.advance(); // away: walk from the DISPLAYED line
+        expect(cubit.state.current, 6);
+        expect(cubit.state.resumeIndex, 6, reason: 'run follows the operator');
+        cubit.showLine(4); // arrow onto home: derived at-home
+        cubit.advance(); // resumes: 6+1 wraps to 0, headers skip to 2
+        expect(cubit.state.current, 2);
+        expect(cubit.state.resumeIndex, 2);
+      });
+
+      test('space disengages AI-follow in one emission', () async {
+        openAt('k4');
+        cubit.setFollowing(on: true);
+        final emitted = <PresenterState>[];
+        final sub = cubit.stream.listen(emitted.add);
+        addTearDown(sub.cancel);
+        cubit.advance();
+        await pumpEventQueue();
+        expect(cubit.state.following, isFalse);
+        expect(emitted, hasLength(1), reason: 'no intermediate state');
+      });
+
+      test('setHome re-homes; out of range is a no-op', () {
+        openAt('k4');
+        cubit.setHome(2);
+        expect(cubit.state.homeIndex, 2);
+        cubit.setHome(99);
+        expect(cubit.state.homeIndex, 2);
+        cubit.showLine(5);
+        cubit
+          ..toggleIntelligentSpacebar() // plain mode: snap to the NEW home
+          ..advance();
+        expect(cubit.state.current, 2);
+      });
+
+      test('tracker moves within the shabad preserve home; shabad swaps '
+          're-init it', () {
+        openAt('k4');
+        cubit
+          ..advance() // resumeIndex 2
+          ..setFollowing(on: true);
+        final k2 = db.shabadLines(kKirtanShabad)[2];
+        cubit.showTrackerVerse(k2); // same shabad
+        expect(cubit.state.homeIndex, 4, reason: 'home must not chase the AI');
+        expect(cubit.state.resumeIndex, 2);
+
+        cubit
+          ..setFollowing(on: true)
+          ..showTrackerVerse(db.shabadLines('S1').first); // different shabad
+        expect(cubit.state.homeIndex, 0, reason: 're-homed to the entry line');
+        expect(cubit.state.resumeIndex, -1);
+      });
+
+      test('nextShabad re-homes to the new shabad', () {
+        cubit
+          ..search('ssnh')
+          ..selectResult(cubit.state.results.first) // S1 at 'a'
+          ..setHome(1)
+          ..nextShabad(); // S2
+        expect(cubit.state.homeIndex, 0);
+      });
+
+      test('intelligentSpacebar persists across cubit instances', () async {
+        cubit.toggleIntelligentSpacebar(); // default true -> false
+        final second = PresenterCubit(
+          db,
+          Preferences(await SharedPreferences.getInstance()),
+        );
+        expect(second.state.intelligentSpacebar, isFalse);
+        await second.close();
+      });
+    });
+
     test('display options toggle and font scale clamps', () {
       cubit.toggleLarivaar();
       expect(cubit.state.larivaar, isTrue);

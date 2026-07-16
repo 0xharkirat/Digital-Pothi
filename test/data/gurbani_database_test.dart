@@ -36,6 +36,25 @@ void main() {
       expect(gurbani.shabadLines('S2').single.gurmukhi, kLineC);
     });
 
+    test('verses carry the corpus line type and physical ang line', () {
+      final kirtan = gurbani.shabadLines(kKirtanShabad);
+      expect(kirtan.map((v) => v.typeId), [2, 1, 4, 4, 3, 4, 4]);
+      expect(kirtan.map((v) => v.sourceLine), [1, 1, 2, 2, 3, 4, 4]);
+      expect(kirtan.map((v) => v.isHeader), [
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false, // ignore: require_trailing_commas
+      ]);
+      expect(kirtan.map((v) => v.isRahao).toList()[4], isTrue);
+      expect(kirtan.where((v) => v.isRahao), hasLength(1));
+      // Dasam has no source_line data: null, never equal to anything.
+      expect(gurbani.shabadLines('S3').single.sourceLine, isNull);
+    });
+
     test('windowAround spans the radius and excludes what is outside it', () {
       expect(gurbani.windowAround(20).map((v) => v.seq), [10, 20, 30]);
       // Radius 5 around order_id 10 reaches 5..15 - only the one line.

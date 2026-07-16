@@ -99,6 +99,43 @@ call('enter_text', {'key': 'search_field', 'input': 'ssnh'})
 time.sleep(0.9)
 check('first-letter query has results', 'Ang ' in elements())
 
+
+def open_first_result():
+    first = next((l for l in elements().split('\n')
+                  if 'Type: RichText, Text: "Ang ' in l), '')
+    tile = first.split('Text: "', 1)[1].split('", ')[0] if first else ''
+    if tile:
+        call('tap', {'text': tile})
+    time.sleep(0.9)
+    return bool(tile)
+
+
+# 5. Intelligent spacebar: open a shabad AT its rahao line (first letters
+# 'ajvdkkd' hit exactly one line, Dhanasari M1's rahao), so home = rahao.
+# Space is a raw key on the presenter Focus, so press_key reaches it (unlike
+# the TextField IME path). The displayed line is detected by counting the
+# dump's occurrences of the rahao text: the display pane adds one copy on top
+# of the shabad row + badge, so home <-> away moves the count by one.
+call('enter_text', {'key': 'search_field', 'input': 'ajvdkkd'})
+time.sleep(0.9)
+check('rahao line found + home affordance shown',
+      open_first_result() and 'Home line' in elements())
+at_home = elements().count('ਰਹਾਉ')
+call('press_key', {'key': 'space'})
+time.sleep(0.8)
+moved = elements().count('ਰਹਾਉ')
+check('space resumes the antara run (off the rahao)', moved < at_home,
+      f'home count {at_home}, after space {moved}')
+back = moved
+for _ in range(3):
+    if back == at_home:
+        break
+    call('press_key', {'key': 'space'})
+    time.sleep(0.8)
+    back = elements().count('ਰਹਾਉ')
+check('space walks the couplet then snaps back home', back == at_home,
+      f'never returned: {back} != {at_home}')
+
 print('---')
 failed = [n for n, ok in results if not ok]
 print(f"{len(results) - len(failed)}/{len(results)} steps passed" + (f"; FAILED: {failed}" if failed else ''))

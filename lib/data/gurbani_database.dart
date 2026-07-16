@@ -188,7 +188,8 @@ class GurbaniDatabase {
   }
 
   static const _cols =
-      'SELECT l.id, l.gurmukhi_uni AS g, l.source_page AS page, l.order_id AS ord ';
+      'SELECT l.id, l.gurmukhi_uni AS g, l.source_page AS page, '
+      'l.order_id AS ord, l.type_id AS type, l.source_line AS sline ';
 
   /// The Sundar Gutka bani list (from BaniDB), in BaniDB id order - the same
   /// order STTM lists them (the corpus-bridged Anand Bhog sorts to the end).
@@ -591,6 +592,8 @@ class GurbaniDatabase {
         gurmukhi: r['g'] as String,
         normalized: normalize(r['g'] as String),
         page: (r['page'] as int?) ?? 0,
+        typeId: (r['type'] as int?) ?? 4,
+        sourceLine: r['sline'] as int?,
       ),
   ];
 
