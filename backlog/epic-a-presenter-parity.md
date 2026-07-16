@@ -77,16 +77,16 @@ We show a fixed English translation, Punjabi teeka, and roman transliteration.
 - [ ] Per-row source selection in Settings.
 - [ ] The overlay `?show=` params extend to the new rows.
 
-## A7 - Home / Rahao (asthaai) marker and jump 🔴 P1
+## A7 - Home / Rahao (asthaai) marker and jump ✅ DONE
 
-**Area:** presenter/navigation · **Related:** B6
+**Area:** presenter/navigation · **Related:** B6 · Shipped 2026-07-16 (PR #41; see docs/plan/2026-07-16-feat-home-verse-spacebar-plan.md)
 
-STTM marks the Rahao line and snaps back to it (the manual version of our AI follow).
-A manual asthaai marker plus a one-key jump complements the tracker and is useful for kirtan.
+Per-shabad home verse (opened-at line, re-homeable per row) + STTM's intelligent spacebar: space resumes the antara run, walks couplets sharing a physical ang line, snaps back home at line boundaries.
+Setting-gated, on by default. ਰਹਾਉ line badged.
 
 **Acceptance:**
-- [ ] The Rahao / home line is marked in the shabad view.
-- [ ] A control and a hotkey jump the display to it.
+- [x] The Rahao / home line is marked in the shabad view (badge + home icon).
+- [x] Space drives the resume/walk/snap cycle; setting off = plain snap home.
 
 ## A8 - Autoplay and Akhand Paath continuous mode 🔴 P2
 

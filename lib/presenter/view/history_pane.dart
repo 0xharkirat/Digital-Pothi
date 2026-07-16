@@ -45,36 +45,50 @@ class HistoryPane extends StatelessWidget {
               ),
         ),
         const Divider(height: 20),
-        Text(
-          'QUICK INSERT',
-          style: theme.textTheme.labelSmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-            letterSpacing: 1.2,
+        // Loose + scrollable so a short window shrinks the footer instead of
+        // overflowing the Column (26px RenderFlex overflow before maximize).
+        Flexible(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'QUICK INSERT',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _QuickChip(label: 'Waheguru', onTap: cubit.showWaheguru),
+                    _QuickChip(
+                      label: 'Mool Mantar',
+                      onTap: cubit.showMoolMantar,
+                    ),
+                    _QuickChip(
+                      label: 'Anand Sahib Bhog',
+                      icon: Icons.auto_stories,
+                      onTap: cubit.showAnandBhog,
+                    ),
+                    _QuickChip(
+                      label: 'Announcement',
+                      icon: Icons.campaign,
+                      onTap: () => _announce(context, cubit),
+                    ),
+                    _QuickChip(
+                      label: 'Blank',
+                      icon: Icons.crop_square,
+                      onTap: cubit.showBlank,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            _QuickChip(label: 'Waheguru', onTap: cubit.showWaheguru),
-            _QuickChip(label: 'Mool Mantar', onTap: cubit.showMoolMantar),
-            _QuickChip(
-              label: 'Anand Sahib Bhog',
-              icon: Icons.auto_stories,
-              onTap: cubit.showAnandBhog,
-            ),
-            _QuickChip(
-              label: 'Announcement',
-              icon: Icons.campaign,
-              onTap: () => _announce(context, cubit),
-            ),
-            _QuickChip(
-              label: 'Blank',
-              icon: Icons.crop_square,
-              onTap: cubit.showBlank,
-            ),
-          ],
         ),
       ],
     );
