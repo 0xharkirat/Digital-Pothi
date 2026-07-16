@@ -6,28 +6,101 @@ import '../../theme/app_theme.dart';
 import '../cubit/presenter_cubit.dart';
 import '../gurmukhi_text.dart';
 
-/// STTM's search-type labels (banidb SEARCH_TYPES, minus the deferred two).
-const _modeLabels = {
-  SearchMode.firstLetterStart: 'First letter (start)',
-  SearchMode.firstLetterAnywhere: 'First letter (anywhere)',
-  SearchMode.fullWordGurmukhi: 'Full word (Gurmukhi)',
-  SearchMode.fullWordEnglish: 'Full word (English)',
-  SearchMode.ang: 'Ang',
-};
-
 String _hintFor(SearchMode mode) => switch (mode) {
-  SearchMode.ang => 'Ang number (Sri Guru Granth Sahib by default)',
   SearchMode.fullWordEnglish => 'Search English translations',
   SearchMode.fullWordGurmukhi => 'Full words in Gurmukhi',
   _ => 'First letters - sdvsd or ਸਦਵਸਦ',
 };
 
-/// Top-left pane: STTM-style search. A type dropdown (first letter, full word
-/// Gurmukhi/English, Ang), the query box, and a Writer / Raag / Source filter
-/// row. Writer and Raag are disabled in Ang mode - a page listing with filter
-/// holes is confusing; only Source scopes an Ang.
-class SearchPane extends StatelessWidget {
+/// Top-left pane, laid out like STTM's search header: a language + match-type
+/// toggle row, the query box with a small Ang box beside it (no mode
+/// dropdown), a weightless "Filter by" text row, the results, and a footer
+/// legend (per-source colour + count). The five [SearchMode]s map onto
+/// STTM's mental model: language radio x Full Word(s) / Anywhere checkboxes,
+/// with Ang driven by its own box.
+class SearchPane extends StatefulWidget {
   const SearchPane({super.key});
+
+  @override
+  State<SearchPane> createState() => _SearchPaneState();
+}
+
+class _SearchPaneState extends State<SearchPane> {
+  final _query = TextEditingController();
+  final _ang = TextEditingController();
+
+  // STTM's header state: language + two checkboxes. The Ang box overrides
+  // them while it holds a number (mode == ang); these keep the toggles' look
+  // and give the mode to fall back to when the box clears.
+  bool _english = false;
+  bool _fullWord = false;
+  bool _anywhere = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Adopt whatever mode the cubit is in (e.g. after a hot reload).
+    final mode = context.read<PresenterCubit>().state.mode;
+    _english = mode == SearchMode.fullWordEnglish;
+    _fullWord =
+        mode == SearchMode.fullWordGurmukhi ||
+        mode == SearchMode.fullWordEnglish;
+    _anywhere = mode != SearchMode.firstLetterStart;
+  }
+
+  @override
+  void dispose() {
+    _query.dispose();
+    _ang.dispose();
+    super.dispose();
+  }
+
+  SearchMode get _toggleMode {
+    if (_english) return SearchMode.fullWordEnglish;
+    if (_fullWord) return SearchMode.fullWordGurmukhi;
+    return _anywhere
+        ? SearchMode.firstLetterAnywhere
+        : SearchMode.firstLetterStart;
+  }
+
+  /// A toggle changed: leave Ang mode if its box is empty, else the box keeps
+  /// ruling (STTM's side input wins while it has a number).
+  void _applyToggles() {
+    setState(() {});
+    if (_ang.text.trim().isEmpty) {
+      context.read<PresenterCubit>()
+        ..setMode(_toggleMode)
+        ..search(_query.text);
+    }
+  }
+
+  void _onQueryChanged(String text) {
+    final cubit = context.read<PresenterCubit>();
+    if (_ang.text.isNotEmpty) {
+      // Typing in the main box takes over from the Ang box.
+      _ang.clear();
+      cubit.setMode(_toggleMode);
+    }
+    cubit.search(text);
+  }
+
+  void _onAngChanged(String text) {
+    final cubit = context.read<PresenterCubit>();
+    if (text.trim().isEmpty) {
+      cubit
+        ..setMode(_toggleMode)
+        ..search(_query.text);
+    } else {
+      if (cubit.state.mode != SearchMode.ang) cubit.setMode(SearchMode.ang);
+      cubit.search(text);
+    }
+  }
+
+  void _openFirst() {
+    final cubit = context.read<PresenterCubit>();
+    final results = cubit.state.results;
+    if (results.isNotEmpty) cubit.selectResult(results.first);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +112,7 @@ class SearchPane extends StatelessWidget {
     final writers = db.writers();
     final sections = db.sections();
     final sources = db.sources();
+    final sourceNames = {for (final s in sources) s.id: s.name};
 
     return BlocBuilder<PresenterCubit, PresenterState>(
       buildWhen: (a, b) =>
@@ -51,81 +125,150 @@ class SearchPane extends StatelessWidget {
       builder: (context, state) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          DropdownButtonFormField<SearchMode>(
-            key: const Key('search_type'),
-            initialValue: state.mode,
-            isDense: true,
-            decoration: const InputDecoration(
-              isDense: true,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 10,
+          // STTM's header row: language radios + match-type checkboxes.
+          Row(
+            children: [
+              _MiniToggle(
+                key: const Key('lang_gr'),
+                label: 'ਗੁਰਮੁਖੀ',
+                gurmukhi: true,
+                radio: true,
+                on: !_english,
+                onTap: () {
+                  _english = false;
+                  _fullWord = false;
+                  _applyToggles();
+                },
               ),
-              border: OutlineInputBorder(),
-            ),
-            items: [
-              for (final mode in SearchMode.values)
-                DropdownMenuItem(value: mode, child: Text(_modeLabels[mode]!)),
+              _MiniToggle(
+                key: const Key('lang_en'),
+                label: 'English',
+                radio: true,
+                on: _english,
+                onTap: () {
+                  _english = true;
+                  _fullWord = true; // English search is full-word only
+                  _applyToggles();
+                },
+              ),
+              const Spacer(),
+              _MiniToggle(
+                key: const Key('opt_full_word'),
+                label: 'Full word',
+                on: _fullWord,
+                enabled: !_english, // implied + locked for English
+                onTap: () {
+                  _fullWord = !_fullWord;
+                  _applyToggles();
+                },
+              ),
+              const SizedBox(width: 2),
+              _MiniToggle(
+                key: const Key('opt_anywhere'),
+                label: 'Anywhere',
+                on: _anywhere,
+                enabled: !_english && !_fullWord, // first-letter option only
+                onTap: () {
+                  _anywhere = !_anywhere;
+                  _applyToggles();
+                },
+              ),
             ],
-            onChanged: (mode) {
-              if (mode != null) cubit.setMode(mode);
-            },
           ),
-          const SizedBox(height: 10),
-          TextField(
-            key: const Key('search_field'),
-            autofocus: true,
-            onChanged: cubit.search,
-            onSubmitted: (_) {
-              // STTM: Enter opens the first result; the nav focus then takes
-              // the keyboard for line navigation.
-              final results = cubit.state.results;
-              if (results.isNotEmpty) cubit.selectResult(results.first);
-            },
-            textInputAction: TextInputAction.search,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.search),
-              hintText: _hintFor(state.mode),
-              filled: true,
-            ),
-          ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
           Row(
             children: [
               Expanded(
-                child: _FilterDropdown(
-                  key: const Key('filter_writer'),
-                  label: 'Writer',
-                  options: writers,
-                  value: state.writerFilter,
-                  enabled: state.mode != SearchMode.ang,
-                  onChanged: cubit.setWriterFilter,
+                child: TextField(
+                  key: const Key('search_field'),
+                  controller: _query,
+                  autofocus: true,
+                  onChanged: _onQueryChanged,
+                  // STTM: Enter opens the first result; the nav focus then
+                  // takes the keyboard for line navigation.
+                  onSubmitted: (_) => _openFirst(),
+                  textInputAction: TextInputAction.search,
+                  style: theme.textTheme.bodyMedium,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search, size: 18),
+                    hintText: _hintFor(_toggleMode),
+                    filled: true,
+                    isDense: true,
+                    border: const OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 10,
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _FilterDropdown(
-                  key: const Key('filter_raag'),
-                  label: 'Raag',
-                  options: sections,
-                  value: state.sectionFilter,
-                  enabled: state.mode != SearchMode.ang,
-                  onChanged: cubit.setSectionFilter,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _FilterDropdown(
-                  key: const Key('filter_source'),
-                  label: 'Source',
-                  options: sources,
-                  value: state.sourceFilter,
-                  onChanged: cubit.setSourceFilter,
+              const SizedBox(width: 6),
+              // STTM's small side input: type an Ang number, it takes over.
+              SizedBox(
+                width: 76,
+                child: TextField(
+                  key: const Key('ang_field'),
+                  controller: _ang,
+                  keyboardType: TextInputType.number,
+                  onChanged: _onAngChanged,
+                  onSubmitted: (_) => _openFirst(),
+                  style: theme.textTheme.bodyMedium,
+                  decoration: InputDecoration(
+                    hintText: 'Ang',
+                    filled: true,
+                    isDense: true,
+                    border: const OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 10,
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 4),
+          // Weightless text filters, right-aligned like STTM's "Filter by".
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                'Filter by',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+              _TextFilter(
+                key: const Key('filter_writer'),
+                label: 'Writer',
+                options: writers,
+                value: state.writerFilter,
+                enabled: state.mode != SearchMode.ang,
+                onChanged: cubit.setWriterFilter,
+              ),
+              _TextFilter(
+                key: const Key('filter_raag'),
+                label: 'Raag',
+                options: sections,
+                value: state.sectionFilter,
+                enabled: state.mode != SearchMode.ang,
+                onChanged: cubit.setSectionFilter,
+              ),
+              _TextFilter(
+                key: const Key('filter_source'),
+                label: 'Source',
+                options: sources,
+                value: state.sourceFilter,
+                onChanged: cubit.setSourceFilter,
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
           Expanded(
             child: state.results.isEmpty
                 ? Center(
@@ -145,15 +288,82 @@ class SearchPane extends StatelessWidget {
                     ),
                   ),
           ),
+          // STTM's footer: a per-source colour legend + the result count.
+          if (state.results.isNotEmpty)
+            _SourceLegend(results: state.results, names: sourceNames),
         ],
       ),
     );
   }
 }
 
-/// One filter dropdown with an "All" first entry (value 0 = no filter).
-class _FilterDropdown extends StatelessWidget {
-  const _FilterDropdown({
+/// An STTM-style inline toggle: a radio dot or check glyph + a small label.
+/// Weightless - no outline, no chip container.
+class _MiniToggle extends StatelessWidget {
+  const _MiniToggle({
+    required this.label,
+    required this.on,
+    required this.onTap,
+    this.radio = false,
+    this.enabled = true,
+    this.gurmukhi = false,
+    super.key,
+  });
+
+  final String label;
+  final bool on;
+  final bool radio;
+  final bool enabled;
+  final bool gurmukhi;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final accent = context.gurbani.accent;
+    final color = !enabled
+        ? theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4)
+        : on
+        ? accent
+        : theme.colorScheme.onSurfaceVariant;
+    return InkWell(
+      onTap: enabled ? onTap : null,
+      borderRadius: BorderRadius.circular(4),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              radio
+                  ? (on
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_unchecked)
+                  : (on ? Icons.check_box : Icons.check_box_outline_blank),
+              size: 14,
+              color: color,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: color,
+                fontFamily: gurmukhi ? kGurmukhiFont : null,
+                fontWeight: on ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A weightless text-dropdown filter: `Writer ▾` (or the chosen name in
+/// accent). All = 0 resets.
+class _TextFilter extends StatelessWidget {
+  const _TextFilter({
     required this.label,
     required this.options,
     required this.value,
@@ -170,29 +380,53 @@ class _FilterDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<int>(
+    final theme = Theme.of(context);
+    final accent = context.gurbani.accent;
+    final active = value != 0;
+    final name = active
+        ? options
+              .firstWhere(
+                (o) => o.id == value,
+                orElse: () => FilterOption(id: value, name: label),
+              )
+              .name
+        : label;
+    final color = !enabled
+        ? theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4)
+        : active
+        ? accent
+        : theme.colorScheme.onSurfaceVariant;
+    return PopupMenuButton<int>(
+      enabled: enabled,
+      tooltip: 'Filter by $label',
       initialValue: value,
-      isDense: true,
-      isExpanded: true,
-      decoration: InputDecoration(
-        labelText: label,
-        isDense: true,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        border: const OutlineInputBorder(),
-      ),
-      items: [
-        const DropdownMenuItem(value: 0, child: Text('All')),
+      onSelected: onChanged,
+      itemBuilder: (context) => [
+        const PopupMenuItem(value: 0, child: Text('All')),
         for (final option in options)
-          DropdownMenuItem(
-            value: option.id,
-            child: Text(option.name, overflow: TextOverflow.ellipsis),
-          ),
+          PopupMenuItem(value: option.id, child: Text(option.name)),
       ],
-      onChanged: enabled
-          ? (id) {
-              if (id != null) onChanged(id);
-            }
-          : null,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 130),
+              child: Text(
+                name,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: color,
+                  fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+                ),
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, size: 16, color: color),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -209,15 +443,17 @@ class _ResultTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 6),
-        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+        margin: const EdgeInsets.only(bottom: 4),
+        padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
         decoration: BoxDecoration(
-          border: Border(left: BorderSide(color: g.accent, width: 3)),
-          color: theme.colorScheme.surfaceContainerHigh,
-          borderRadius: const BorderRadius.only(
-            topRight: Radius.circular(6),
-            bottomRight: Radius.circular(6),
+          // Accent keyed by source, like STTM's result bars.
+          border: Border(
+            left: BorderSide(
+              color: AppColors.sourceColor(result.sourceId),
+              width: 3,
+            ),
           ),
+          color: theme.colorScheme.surfaceContainerHigh,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,7 +471,7 @@ class _ResultTile extends StatelessWidget {
                   ),
                   TextSpan(
                     text: strippedGurmukhi(result.gurmukhi),
-                    style: g.gurmukhi,
+                    style: g.gurmukhi.copyWith(height: 1.5),
                   ),
                 ],
               ),
@@ -262,6 +498,58 @@ class _ResultTile extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// STTM's search footer: a colour legend for the sources present in the
+/// results, and the count ("100+" when the query limit was hit).
+class _SourceLegend extends StatelessWidget {
+  const _SourceLegend({required this.results, required this.names});
+  final List<SearchResult> results;
+  final Map<int, String> names;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final present = <int>{for (final r in results) r.sourceId}..remove(0);
+    final capped = results.length >= 100;
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        children: [
+          for (final id in present.toList()..sort()) ...[
+            Container(
+              width: 9,
+              height: 9,
+              margin: const EdgeInsets.only(right: 4),
+              decoration: BoxDecoration(
+                color: AppColors.sourceColor(id),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: Text(
+                names[id] ?? 'Source $id',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontSize: 11,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
+          const Spacer(),
+          Text(
+            '${results.length}${capped ? '+' : ''} '
+            'result${results.length == 1 ? '' : 's'}',
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontSize: 11,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
       ),
     );
   }

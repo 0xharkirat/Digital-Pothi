@@ -69,6 +69,7 @@ class SearchResult {
     required this.author,
     required this.section,
     this.translation = '',
+    this.sourceId = 0,
   });
 
   final String lineId;
@@ -80,6 +81,7 @@ class SearchResult {
   final String author; // writer, e.g. "Guru Nanak Dev Ji"
   final String section; // raag / bani division, e.g. "Raag Tukhaari"
   final String translation; // English, searchEnglish results only
+  final int sourceId; // corpus `sources` id - drives the result accent colour
 }
 
 /// One row for a search filter dropdown (writers / raags / sources).
@@ -398,7 +400,7 @@ class GurbaniDatabase {
   // split so searchEnglish can add its translation column + join between them.
   static const _searchSelect =
       'SELECT l.id, l.shabad_id AS sid, l.order_id AS ord, l.gurmukhi_uni AS g, '
-      'l.source_page AS page, w.name_english AS author, '
+      'l.source_page AS page, sh.source_id AS src, w.name_english AS author, '
       "sec.name_english AS section, COALESCE(tl.text, '') AS translit";
   static const _searchJoins =
       ' FROM lines l '
@@ -579,6 +581,7 @@ class GurbaniDatabase {
         author: (r['author'] as String?) ?? '',
         section: (r['section'] as String?) ?? '',
         translation: withTranslation ? (r['translation'] as String?) ?? '' : '',
+        sourceId: (r['src'] as int?) ?? 0,
       ),
   ];
 

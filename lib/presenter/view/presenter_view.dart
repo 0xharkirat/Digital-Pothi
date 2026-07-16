@@ -76,93 +76,128 @@ class PresenterView extends StatelessWidget {
       ],
       child: PresenterKeyboard(
         child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Gurbani Live'),
-            centerTitle: true,
-            leading: Builder(
-              builder: (context) => IconButton(
-                icon: const Icon(Icons.menu_book),
-                tooltip: 'Banis',
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              ),
-            ),
-            actions: [
-              Builder(
-                builder: (context) => IconButton(
-                  icon: const Icon(Icons.tune),
-                  tooltip: 'Settings',
-                  onPressed: () => Scaffold.of(context).openEndDrawer(),
+          drawer: const BaniDrawer(),
+          endDrawer: const SettingsDrawer(),
+          // No AppBar: a 40px icon rail (STTM's header rail) carries the two
+          // drawer openers, and every other pixel is operator content.
+          body: Row(
+            children: [
+              const _IconRail(),
+              const VerticalDivider(width: 1, thickness: 1),
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final wide = constraints.maxWidth > 720;
+                    // Full-bleed panes split by 1px seams - a console, not a
+                    // card feed.
+                    final left = Column(
+                      children: [
+                        Expanded(child: _Pane(child: const SearchPane())),
+                        const Divider(height: 1, thickness: 1),
+                        Expanded(
+                          child: _Pane(
+                            padding: EdgeInsets.zero,
+                            child: const ShabadView(),
+                          ),
+                        ),
+                      ],
+                    );
+                    final right = Column(
+                      children: [
+                        const Expanded(flex: 3, child: _DisplayPaneHost()),
+                        const Divider(height: 1, thickness: 1),
+                        Expanded(
+                          flex: 2,
+                          child: _Pane(
+                            padding: EdgeInsets.zero,
+                            child: const _ControlsTabs(),
+                          ),
+                        ),
+                      ],
+                    );
+                    if (wide) {
+                      return Row(
+                        children: [
+                          Expanded(child: left),
+                          const VerticalDivider(width: 1, thickness: 1),
+                          Expanded(child: right),
+                        ],
+                      );
+                    }
+                    // Narrow (phone): a scroll of fixed-height sections - the
+                    // panes have inner ListViews, so they need bounded heights,
+                    // and scrolling means a short window can never overflow.
+                    return SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const SizedBox(
+                            height: 200,
+                            child: _DisplayPaneHost(),
+                          ),
+                          SizedBox(
+                            height: 360,
+                            child: _Pane(child: const SearchPane()),
+                          ),
+                          SizedBox(
+                            height: 300,
+                            child: _Pane(
+                              padding: EdgeInsets.zero,
+                              child: const ShabadView(),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 440,
+                            child: _Pane(
+                              padding: EdgeInsets.zero,
+                              child: const _ControlsTabs(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
           ),
-          drawer: const BaniDrawer(),
-          endDrawer: const SettingsDrawer(),
-          body: LayoutBuilder(
-            builder: (context, constraints) {
-              final wide = constraints.maxWidth > 720;
-              final left = Column(
-                children: [
-                  Expanded(child: _Pane(child: const SearchPane())),
-                  Expanded(
-                    child: _Pane(
-                      padding: EdgeInsets.zero,
-                      child: const ShabadView(),
-                    ),
-                  ),
-                ],
-              );
-              final right = Column(
-                children: [
-                  const Expanded(flex: 3, child: _DisplayPaneHost()),
-                  Expanded(
-                    flex: 2,
-                    child: _Pane(
-                      padding: EdgeInsets.zero,
-                      child: const _ControlsTabs(),
-                    ),
-                  ),
-                ],
-              );
-              if (wide) {
-                return Row(
-                  children: [
-                    Expanded(child: left),
-                    Expanded(child: right),
-                  ],
-                );
-              }
-              // Narrow (phone): a scroll of fixed-height sections - the panes have
-              // inner ListViews, so they need bounded heights, and scrolling means
-              // a short window can never overflow.
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 200, child: _DisplayPaneHost()),
-                    SizedBox(
-                      height: 360,
-                      child: _Pane(child: const SearchPane()),
-                    ),
-                    SizedBox(
-                      height: 300,
-                      child: _Pane(
-                        padding: EdgeInsets.zero,
-                        child: const ShabadView(),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 440,
-                      child: _Pane(
-                        padding: EdgeInsets.zero,
-                        child: const _ControlsTabs(),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
         ),
+      ),
+    );
+  }
+}
+
+/// STTM's 40px left rail: banis on top, settings pinned to the bottom.
+class _IconRail extends StatelessWidget {
+  const _IconRail();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      width: 40,
+      color: theme.colorScheme.surfaceContainerLowest,
+      child: Column(
+        children: [
+          const SizedBox(height: 4),
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu_book, size: 19),
+              tooltip: 'Banis',
+              color: theme.colorScheme.onSurfaceVariant,
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
+          ),
+          const Spacer(),
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.tune, size: 19),
+              tooltip: 'Settings',
+              color: theme.colorScheme.onSurfaceVariant,
+              onPressed: () => Scaffold.of(context).openEndDrawer(),
+            ),
+          ),
+          const SizedBox(height: 4),
+        ],
       ),
     );
   }
@@ -174,10 +209,8 @@ class _DisplayPaneHost extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(6),
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+    // Full-bleed: the preview IS its quadrant, like STTM - no floating card.
+    return SizedBox.expand(
       child: BlocBuilder<PresenterCubit, PresenterState>(
         buildWhen: (a, b) =>
             a.current != b.current ||
@@ -261,22 +294,18 @@ class _ControlsTabs extends StatelessWidget {
   }
 }
 
+/// A full-bleed pane: luminance separates regions (with the 1px seams in the
+/// shell); no margins, no rounded card - console, not feed.
 class _Pane extends StatelessWidget {
-  const _Pane({required this.child, this.padding = const EdgeInsets.all(14)});
+  const _Pane({required this.child, this.padding = const EdgeInsets.all(10)});
   final Widget child;
   final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(6),
-      padding: padding,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: child,
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.surfaceContainerLow,
+      child: Padding(padding: padding, child: child),
     );
   }
 }

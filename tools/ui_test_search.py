@@ -39,12 +39,9 @@ def elements():
     _, text = call('get_interactive_elements')
     return text
 
-def pick_mode(label):
-    """Open the type dropdown (best-effort - the closed button also exposes its
-    items offstage, so the item tap works either way), then tap the item."""
-    call('tap', {'key': 'search_type'})
-    time.sleep(0.7)
-    err, out = call('tap', {'text': label})
+def tap_key(key):
+    """Tap an STTM-style header toggle (A15: chips replaced the dropdown)."""
+    err, out = call('tap', {'key': key})
     time.sleep(0.7)
     return not err, out
 
@@ -65,8 +62,8 @@ call('hot_restart')
 time.sleep(5)  # fresh state: no shabad open until Enter opens one
 
 # 1. English mode, search "beloved" -> results with translation snippets.
-ok, detail = pick_mode('Full word (English)')
-check('pick Full word (English)', ok, detail)
+ok, detail = tap_key('lang_en')
+check('pick English (full word)', ok, detail)
 call('enter_text', {'key': 'search_field', 'input': 'beloved'})
 time.sleep(0.9)
 els = elements()
@@ -84,17 +81,15 @@ els = elements()
 check('tapping first result opens the shabad (toolbar visible)',
       'Previous line' in els and 'Next line' in els, out + ' | ' + els[:300])
 
-# 3. Ang mode: 917 lists the page (Anand Sahib's ang).
-ok, detail = pick_mode('Ang')
-check('pick Ang mode', ok, detail)
-call('enter_text', {'key': 'search_field', 'input': '917'})
+# 3. The Ang box takes over: 917 lists the page (Anand Sahib's ang).
+call('enter_text', {'key': 'ang_field', 'input': '917'})
 time.sleep(0.9)
 els = elements()
-check('Ang 917 lists the page', 'Ang 917' in els, els[:400])
+check('Ang box 917 lists the page', 'Ang 917' in els, els[:400])
 
-# 4. Back to first-letter; query has results.
-ok, detail = pick_mode('First letter (anywhere)')
-check('back to First letter (anywhere)', ok, detail)
+# 4. Back to Gurmukhi first-letter; typing the main box clears the Ang box.
+ok, detail = tap_key('lang_gr')
+check('back to Gurmukhi', ok, detail)
 call('enter_text', {'key': 'search_field', 'input': 'ssnh'})
 time.sleep(0.9)
 check('first-letter query has results', 'Ang ' in elements())

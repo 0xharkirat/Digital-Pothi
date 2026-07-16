@@ -28,6 +28,17 @@ abstract final class AppColors {
   static const onLine = Color(0xFF34A853);
   static const catchingUp = amber;
 
+  /// Per-source accent for search-result bars + the footer legend (STTM keys
+  /// its result accents by source too). Ids follow the corpus `sources` table:
+  /// 1 SGGS, 2 Dasam Granth, 3 Bhai Gurdas Vaaran, others muted.
+  static const _sourceColors = <int, Color>{
+    1: kesari,
+    2: Color(0xFF4C9EEB), // dasam blue
+    3: Color(0xFF3CB8A4), // vaaran teal
+  };
+  static Color sourceColor(int id) =>
+      _sourceColors[id] ?? const Color(0xFF8A93A0);
+
   /// Cool-dark controller surfaces. Seeding the scheme on saffron tints the
   /// neutral tones warm-brown; these keep the operator's app clean and let the
   /// navy display be the only warm surface.
@@ -156,6 +167,8 @@ abstract final class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
+      // Operator console density: this is a pro tool, not a touch app.
+      visualDensity: VisualDensity.compact,
       scaffoldBackgroundColor: dark ? AppColors.ctrlBg : null,
       extensions: [
         GurbaniTheme(
