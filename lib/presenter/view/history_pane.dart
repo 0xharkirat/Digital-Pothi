@@ -72,39 +72,36 @@ class _HistoryPaneState extends State<HistoryPane> {
             ],
           ),
         ),
-        // Loose + scrollable so a short window shrinks the footer instead of
-        // overflowing the Column (26px RenderFlex overflow before maximize).
+        // Natural height, never flexed - a Flexible here would flex-share the
+        // column's leftover space with the history Expanded and pin dead space
+        // under the chips. One row that scrolls sideways when the pane is
+        // narrow keeps the footer ~40px tall in every window.
         if (_quickInsertOpen)
-          Flexible(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    _QuickChip(label: 'Waheguru', onTap: cubit.showWaheguru),
-                    _QuickChip(
-                      label: 'Mool Mantar',
-                      onTap: cubit.showMoolMantar,
-                    ),
-                    _QuickChip(
-                      label: 'Anand Sahib Bhog',
-                      icon: Icons.auto_stories,
-                      onTap: cubit.showAnandBhog,
-                    ),
-                    _QuickChip(
-                      label: 'Announcement',
-                      icon: Icons.campaign,
-                      onTap: () => _announce(context, cubit),
-                    ),
-                    _QuickChip(
-                      label: 'Blank',
-                      icon: Icons.crop_square,
-                      onTap: cubit.showBlank,
-                    ),
-                  ],
-                ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Row(
+                spacing: 6,
+                children: [
+                  _QuickChip(label: 'Waheguru', onTap: cubit.showWaheguru),
+                  _QuickChip(label: 'Mool Mantar', onTap: cubit.showMoolMantar),
+                  _QuickChip(
+                    label: 'Anand Sahib Bhog',
+                    icon: Icons.auto_stories,
+                    onTap: cubit.showAnandBhog,
+                  ),
+                  _QuickChip(
+                    label: 'Announcement',
+                    icon: Icons.campaign,
+                    onTap: () => _announce(context, cubit),
+                  ),
+                  _QuickChip(
+                    label: 'Blank',
+                    icon: Icons.crop_square,
+                    onTap: cubit.showBlank,
+                  ),
+                ],
               ),
             ),
           ),
