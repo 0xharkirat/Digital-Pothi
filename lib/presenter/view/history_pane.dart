@@ -7,9 +7,17 @@ import '../gurmukhi_text.dart';
 
 /// History + Quick Insert (STTM's bottom-right). The list is what you've shown
 /// this session, most recent first, tap to jump back. The footer drops in the
-/// standard slides without a search.
-class HistoryPane extends StatelessWidget {
+/// standard slides without a search; its disclosure header collapses it when
+/// the history needs the room (STTM's arrow).
+class HistoryPane extends StatefulWidget {
   const HistoryPane({super.key});
+
+  @override
+  State<HistoryPane> createState() => _HistoryPaneState();
+}
+
+class _HistoryPaneState extends State<HistoryPane> {
+  bool _quickInsertOpen = true;
 
   @override
   Widget build(BuildContext context) {
@@ -44,25 +52,36 @@ class HistoryPane extends StatelessWidget {
                 },
               ),
         ),
-        const Divider(height: 20),
+        const Divider(height: 10),
+        InkWell(
+          onTap: () => setState(() => _quickInsertOpen = !_quickInsertOpen),
+          child: Row(
+            children: [
+              Icon(
+                _quickInsertOpen ? Icons.arrow_drop_down : Icons.arrow_right,
+                size: 18,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              Text(
+                'QUICK INSERT',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ],
+          ),
+        ),
         // Loose + scrollable so a short window shrinks the footer instead of
         // overflowing the Column (26px RenderFlex overflow before maximize).
-        Flexible(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'QUICK INSERT',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+        if (_quickInsertOpen)
+          Flexible(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
                   children: [
                     _QuickChip(label: 'Waheguru', onTap: cubit.showWaheguru),
                     _QuickChip(
@@ -86,10 +105,9 @@ class HistoryPane extends StatelessWidget {
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
       ],
     );
   }
@@ -146,8 +164,8 @@ class _HistoryTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 6),
-        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+        margin: const EdgeInsets.only(bottom: 4),
+        padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
         decoration: BoxDecoration(
           border: Border(left: BorderSide(color: g.accent, width: 3)),
           color: theme.colorScheme.surfaceContainerHigh,
@@ -161,7 +179,8 @@ class _HistoryTile extends StatelessWidget {
           children: [
             Text(
               strippedGurmukhi(entry.gurmukhi),
-              style: g.gurmukhi,
+              // List-size Gurmukhi: the display pane owns the big type.
+              style: g.gurmukhi.copyWith(fontSize: 18, height: 1.4),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -170,6 +189,7 @@ class _HistoryTile extends StatelessWidget {
               Text(
                 meta,
                 style: theme.textTheme.bodySmall?.copyWith(
+                  fontSize: 11,
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
@@ -191,8 +211,15 @@ class _QuickChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: onTap,
-      icon: Icon(icon ?? Icons.add, size: 16),
+      icon: Icon(icon ?? Icons.add, size: 14),
       label: Text(label),
+      style: OutlinedButton.styleFrom(
+        visualDensity: VisualDensity.compact,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        minimumSize: const Size(0, 30),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        textStyle: const TextStyle(fontSize: 12),
+      ),
     );
   }
 }

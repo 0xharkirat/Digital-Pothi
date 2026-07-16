@@ -67,8 +67,8 @@ class _FavoriteTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 6),
-        padding: const EdgeInsets.fromLTRB(12, 10, 6, 10),
+        margin: const EdgeInsets.only(bottom: 4),
+        padding: const EdgeInsets.fromLTRB(10, 6, 6, 6),
         decoration: BoxDecoration(
           border: Border(left: BorderSide(color: g.accent, width: 3)),
           color: theme.colorScheme.surfaceContainerHigh,
@@ -85,7 +85,8 @@ class _FavoriteTile extends StatelessWidget {
                 children: [
                   Text(
                     strippedGurmukhi(entry.gurmukhi),
-                    style: g.gurmukhi,
+                    // List-size Gurmukhi, like the history tiles.
+                    style: g.gurmukhi.copyWith(fontSize: 18, height: 1.4),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
