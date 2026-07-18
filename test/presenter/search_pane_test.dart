@@ -44,29 +44,35 @@ void main() {
     expect(cubit.state.mode, SearchMode.firstLetterAnywhere);
     expect(find.text('First letters - sdvsd or ਸਦਵਸਦ'), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('opt_anywhere')));
+    // The match types are one-of, so they render as a radio group - picking
+    // any one is a single tap from anywhere (the old checkbox pair needed an
+    // uncheck-first dance).
+    await tester.tap(find.byKey(const Key('match_start')));
     await tester.pump();
     expect(cubit.state.mode, SearchMode.firstLetterStart);
 
-    await tester.tap(find.byKey(const Key('opt_full_word')));
+    await tester.tap(find.byKey(const Key('match_full')));
     await tester.pump();
     expect(cubit.state.mode, SearchMode.fullWordGurmukhi);
     expect(find.text('Full words in Gurmukhi'), findsOneWidget);
 
+    // The language radio picks the script only; the match radio is stable.
     await tester.tap(find.byKey(const Key('lang_en')));
     await tester.pump();
     expect(cubit.state.mode, SearchMode.fullWordEnglish);
     expect(find.text('Search English translations'), findsOneWidget);
 
-    // Back to Gurmukhi: full-word unlocks off (STTM resets to first letters);
-    // the Anywhere checkbox keeps its earlier unchecked state.
-    await tester.tap(find.byKey(const Key('lang_gr')));
-    await tester.pump();
-    expect(cubit.state.mode, SearchMode.firstLetterStart);
-
-    await tester.tap(find.byKey(const Key('opt_anywhere')));
+    // English + first letters = ROMANIZED first letters (STTM's
+    // FIRST_LETTERS_ENGLISH), not translation search.
+    await tester.tap(find.byKey(const Key('match_anywhere')));
     await tester.pump();
     expect(cubit.state.mode, SearchMode.firstLetterAnywhere);
+    expect(find.text('Romanized first letters - mkjt'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('lang_gr')));
+    await tester.pump();
+    expect(cubit.state.mode, SearchMode.firstLetterAnywhere);
+    expect(find.text('First letters - sdvsd or ਸਦਵਸਦ'), findsOneWidget);
   });
 
   testWidgets('the Ang box takes over and disables Writer/Raag', (
@@ -78,16 +84,12 @@ void main() {
     expect(cubit.state.mode, SearchMode.ang);
     expect(cubit.state.results.map((r) => r.lineId), ['a', 'b']);
 
-    PopupMenuButton<int> filter(String key) =>
-        tester.widget<PopupMenuButton<int>>(
-          find.descendant(
-            of: find.byKey(Key(key)),
-            matching: find.byType(PopupMenuButton<int>),
-          ),
-        );
-    expect(filter('filter_writer').enabled, isFalse);
-    expect(filter('filter_raag').enabled, isFalse);
-    expect(filter('filter_source').enabled, isTrue); // scopes the Ang
+    InkWell filter(String key) => tester.widget<InkWell>(
+      find.descendant(of: find.byKey(Key(key)), matching: find.byType(InkWell)),
+    );
+    expect(filter('filter_writer').onTap, isNull); // disabled
+    expect(filter('filter_raag').onTap, isNull); // disabled
+    expect(filter('filter_source').onTap, isNotNull); // scopes the Ang
 
     // Clearing the box falls back to the toggles' mode + main query.
     await tester.enterText(find.byKey(const Key('ang_field')), '');
@@ -124,6 +126,7 @@ void main() {
   ) async {
     await pumpPane(tester);
     await tester.tap(find.byKey(const Key('lang_en')));
+    await tester.tap(find.byKey(const Key('match_full')));
     await tester.pump();
     await tester.enterText(find.byKey(const Key('search_field')), 'thinking');
     await tester.pump();
@@ -140,6 +143,50 @@ void main() {
     expect(find.text('1 result'), findsOneWidget);
     expect(find.text('Sri Dasam Granth'), findsOneWidget);
     expect(find.text('Sri Guru Granth Sahib Ji'), findsNothing);
+  });
+
+  testWidgets('on-screen Gurmukhi keyboard types, deletes, hides for English', (
+    tester,
+  ) async {
+    await pumpPane(tester);
+    // Closed until toggled.
+    expect(find.byKey(const Key('gurmukhi_keyboard')), findsNothing);
+    await tester.tap(find.byKey(const Key('kb_toggle')));
+    await tester.pump();
+    expect(find.byKey(const Key('gurmukhi_keyboard')), findsOneWidget);
+
+    Future<void> key(String ch) async {
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(const Key('gurmukhi_keyboard')),
+          matching: find.text(ch),
+        ),
+      );
+      await tester.pump();
+    }
+
+    // ਸਸਨਹ = line a's first letters (anywhere), typed on the keyboard.
+    await key('ਸ');
+    await key('ਸ');
+    await key('ਨ');
+    await key('ਹ');
+    expect(cubit.state.query, 'ਸਸਨਹ');
+    expect(cubit.state.results.single.lineId, 'a');
+
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const Key('gurmukhi_keyboard')),
+        matching: find.byIcon(Icons.backspace_outlined),
+      ),
+    );
+    await tester.pump();
+    expect(cubit.state.query, 'ਸਸਨ');
+
+    // English input is roman: no Gurmukhi keyboard, no toggle.
+    await tester.tap(find.byKey(const Key('lang_en')));
+    await tester.pump();
+    expect(find.byKey(const Key('gurmukhi_keyboard')), findsNothing);
+    expect(find.byKey(const Key('kb_toggle')), findsNothing);
   });
 
   testWidgets('Enter opens the first result', (tester) async {

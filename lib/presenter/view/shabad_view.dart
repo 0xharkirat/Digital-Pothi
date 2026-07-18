@@ -194,6 +194,7 @@ class _LineRowState extends State<_LineRow> {
     final g = context.gurbani;
     final theme = Theme.of(context);
     return InkWell(
+      mouseCursor: kClickCursor,
       onTap: widget.onTap,
       onHover: (h) => setState(() => _hovered = h),
       child: AnimatedContainer(

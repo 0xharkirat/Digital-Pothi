@@ -60,6 +60,8 @@ class PresenterState extends Equatable {
     this.homeIndex = -1,
     this.resumeIndex = -1,
     this.intelligentSpacebar = true,
+    this.leftAlign = false,
+    this.slideTransitions = true,
   });
 
   final String query;
@@ -94,6 +96,8 @@ class PresenterState extends Equatable {
   final bool larivaar; // run words together
   final bool vishraam; // colour the pause words
   final double fontScale; // 0.7 .. 1.5, multiplies the base sizes
+  final bool leftAlign; // STTM left-align: line + rows flush-left, not centred
+  final bool slideTransitions; // fade the projected line on change
 
   /// Recently shown lines, most recent first. Persisted across launches.
   final List<HistoryEntry> history;
@@ -185,6 +189,8 @@ class PresenterState extends Equatable {
     int? homeIndex,
     int? resumeIndex,
     bool? intelligentSpacebar,
+    bool? leftAlign,
+    bool? slideTransitions,
   }) => PresenterState(
     query: query ?? this.query,
     mode: mode ?? this.mode,
@@ -209,6 +215,8 @@ class PresenterState extends Equatable {
     homeIndex: homeIndex ?? this.homeIndex,
     resumeIndex: resumeIndex ?? this.resumeIndex,
     intelligentSpacebar: intelligentSpacebar ?? this.intelligentSpacebar,
+    leftAlign: leftAlign ?? this.leftAlign,
+    slideTransitions: slideTransitions ?? this.slideTransitions,
   );
 
   // `display` is derived from `current`, so it's left out - `current` already
@@ -237,5 +245,7 @@ class PresenterState extends Equatable {
     homeIndex,
     resumeIndex,
     intelligentSpacebar,
+    leftAlign,
+    slideTransitions,
   ];
 }

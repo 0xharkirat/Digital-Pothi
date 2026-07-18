@@ -53,24 +53,50 @@ class _HistoryPaneState extends State<HistoryPane> {
               ),
         ),
         const Divider(height: 10),
-        InkWell(
-          onTap: () => setState(() => _quickInsertOpen = !_quickInsertOpen),
-          child: Row(
-            children: [
-              Icon(
-                _quickInsertOpen ? Icons.arrow_drop_down : Icons.arrow_right,
-                size: 18,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              Text(
-                'QUICK INSERT',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                  letterSpacing: 1.2,
+        Row(
+          children: [
+            Expanded(
+              child: InkWell(
+                mouseCursor: kClickCursor,
+                onTap: () =>
+                    setState(() => _quickInsertOpen = !_quickInsertOpen),
+                child: Row(
+                  children: [
+                    Icon(
+                      _quickInsertOpen
+                          ? Icons.arrow_drop_down
+                          : Icons.arrow_right,
+                      size: 18,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                    Text(
+                      'QUICK INSERT',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+            // STTM's Clear History, on the same strip.
+            BlocSelector<PresenterCubit, PresenterState, bool>(
+              selector: (s) => s.history.isNotEmpty,
+              builder: (context, hasHistory) => hasHistory
+                  ? TextButton.icon(
+                      onPressed: cubit.clearHistory,
+                      icon: const Icon(Icons.delete_sweep, size: 14),
+                      label: const Text('Clear history'),
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        foregroundColor: theme.colorScheme.onSurfaceVariant,
+                        textStyle: const TextStyle(fontSize: 12),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ],
         ),
         // Natural height, never flexed - a Flexible here would flex-share the
         // column's leftover space with the history Expanded and pin dead space
@@ -158,40 +184,45 @@ class _HistoryTile extends StatelessWidget {
       entry.section,
       if (entry.page > 0) 'Ang ${entry.page}',
     ].where((s) => s.isNotEmpty).join('  ·  ');
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 4),
-        padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
-        decoration: BoxDecoration(
-          border: Border(left: BorderSide(color: g.accent, width: 3)),
-          color: theme.colorScheme.surfaceContainerHigh,
-          borderRadius: const BorderRadius.only(
-            topRight: Radius.circular(6),
-            bottomRight: Radius.circular(6),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              strippedGurmukhi(entry.gurmukhi),
-              // List-size Gurmukhi: the display pane owns the big type.
-              style: g.gurmukhi.copyWith(fontSize: 18, height: 1.4),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+    // Ink, not Container: an opaque Container hides the InkWell's hover and
+    // splash; Ink paints the fill into the Material's ink layer instead.
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: InkWell(
+        mouseCursor: kClickCursor,
+        onTap: onTap,
+        child: Ink(
+          padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
+          decoration: BoxDecoration(
+            border: Border(left: BorderSide(color: g.accent, width: 3)),
+            color: theme.colorScheme.surfaceContainerHigh,
+            borderRadius: const BorderRadius.only(
+              topRight: Radius.circular(6),
+              bottomRight: Radius.circular(6),
             ),
-            if (meta.isNotEmpty) ...[
-              const SizedBox(height: 2),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Text(
-                meta,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  fontSize: 11,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+                strippedGurmukhi(entry.gurmukhi),
+                // List-size Gurmukhi: the display pane owns the big type.
+                style: g.gurmukhi.copyWith(fontSize: 18, height: 1.4),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
+              if (meta.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text(
+                  meta,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontSize: 11,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

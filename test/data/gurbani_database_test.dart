@@ -107,6 +107,21 @@ void main() {
       expect(gurbani.searchFirstLetters('ਸਸਨ').single.lineId, 'a');
     });
 
+    test('roman first letters fold phonetically (t finds ਤ, b finds ਭ)', () {
+      // Line d's font codes are 'dqpc' (ਦ ਤ ਪ ਚ): a typed t must reach ਤ (q).
+      expect(gurbani.searchFirstLetters('dtpc').single.lineId, 'd');
+      // Every ਤ-family line answers: c (…ਵਤ) and d (ਦਤ…), reading order.
+      expect(gurbani.searchFirstLetters('t').map((r) => r.lineId), ['c', 'd']);
+      // Line b's are 'BBnajbpB' (ਭ...): a typed b must reach ਭ (B), and the
+      // start-anchored form works through the fold too.
+      expect(
+        gurbani.searchFirstLetters('bbna', anywhere: false).single.lineId,
+        'b',
+      );
+      // ੳ is font 'a': typed u reaches it (ਉਤਰੀ position in line b).
+      expect(gurbani.searchFirstLetters('bbnu').single.lineId, 'b');
+    });
+
     test('first-letter "anywhere" matches mid-run; "start" does not', () {
       expect(gurbani.searchFirstLetters('nhjs').single.lineId, 'a');
       expect(gurbani.searchFirstLetters('nhjs', anywhere: false), isEmpty);

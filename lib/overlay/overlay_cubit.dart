@@ -75,6 +75,8 @@ class OverlayCubit extends Cubit<OverlayStatus> {
     bool larivaar = false,
     bool vishraam = true,
     double fontScale = 1.0,
+    String text = '#FBF3E3',
+    String accent = '#F0B429',
   }) {
     if (!state.running) return;
     _server.showLine(
@@ -86,6 +88,8 @@ class OverlayCubit extends Cubit<OverlayStatus> {
       larivaar: larivaar,
       vishraam: vishraam,
       fontScale: fontScale,
+      text: text,
+      accent: accent,
     );
   }
 

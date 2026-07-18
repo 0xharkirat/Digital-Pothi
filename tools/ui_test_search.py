@@ -61,9 +61,11 @@ if err:
 call('hot_restart')
 time.sleep(5)  # fresh state: no shabad open until Enter opens one
 
-# 1. English mode, search "beloved" -> results with translation snippets.
+# 1. English translation search = English + Full word (English alone means
+# romanized first letters, like STTM).
 ok, detail = tap_key('lang_en')
-check('pick English (full word)', ok, detail)
+ok2, detail2 = tap_key('match_full')
+check('pick English + Full word', ok and ok2, detail + ' | ' + detail2)
 call('enter_text', {'key': 'search_field', 'input': 'beloved'})
 time.sleep(0.9)
 els = elements()
@@ -87,9 +89,11 @@ time.sleep(0.9)
 els = elements()
 check('Ang box 917 lists the page', 'Ang 917' in els, els[:400])
 
-# 4. Back to Gurmukhi first-letter; typing the main box clears the Ang box.
+# 4. Back to Gurmukhi first letters: the language radio picks the script
+# only, so the match radio is tapped explicitly (it stayed on Full word).
 ok, detail = tap_key('lang_gr')
-check('back to Gurmukhi', ok, detail)
+ok2, detail2 = tap_key('match_anywhere')
+check('back to Gurmukhi first letters', ok and ok2, detail + ' | ' + detail2)
 call('enter_text', {'key': 'search_field', 'input': 'ssnh'})
 time.sleep(0.9)
 check('first-letter query has results', 'Ang ' in elements())

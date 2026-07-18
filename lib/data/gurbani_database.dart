@@ -443,6 +443,50 @@ class GurbaniDatabase {
   /// ("sdvsd" for ਸਾਜਨ ਦੇਸਿ ਵਿਦੇਸੀਅੜੇ ਸਾਨੇਹੜੇ ਦੇਦੀ), roman or Gurmukhi; the script
   /// is auto-detected. [anywhere] matches the run anywhere in a line's first
   /// letters (STTM's default), else only at the start.
+  /// Phonetic roman → font-code GLOB classes. Derived EMPIRICALLY from the
+  /// shipped STTM realm: every (FirstLetterStr font code, FirstLetterEng
+  /// char) pair across its 142k verses (see docs/DB-COMPARISON.md). Their
+  /// fold is baked into the data; ours runs in the query. Two deliberate
+  /// supersets: t also reaches the retroflexes ਟ ਠ (STTM needs uppercase T),
+  /// and r also reaches ੜ (STTM needs R) - we lowercase input, so the
+  /// lenient class beats an unreachable distinction.
+  /// Public for the fixture pin test (test/data/roman_fold_test.dart) - the
+  /// committed tools/data/fold_pairs.json is the source of truth.
+  static const romanClasses = <String, String>{
+    'a': '[Aa]', // ਅ + ੳ
+    'b': '[bB]',
+    'c': '[cC]',
+    'd': '[dDfF]', // ਦ ਧ ਡ ਢ - STTM folds all four to d
+    'e': '[e]',
+    'f': '[P]', // ਫ
+    'g': '[gGZ]', // + ਗ਼
+    'h': '[h]',
+    'i': '[e<]', // ੲ + ੴ (STTM folds Ik Onkar to i)
+    'j': '[jJ]',
+    'k': '[kK^]', // + ਖ਼
+    'l': '[lL]',
+    'm': '[m]',
+    'n': r'[nx|\]', // ਨ ਣ ਙ ਞ
+    'o': '[Ea]', // ਓ + ੳ
+    'p': '[pP&]',
+    'q': '[qQ]',
+    'r': '[rV]', // + ੜ
+    's': '[sS]', // + ਸ਼
+    't': '[tTqQ]', // ਟ ਠ ਤ ਥ
+    'u': '[a]', // ੳ
+    'v': '[v]',
+    'w': '[v]',
+    'x': '[x]', // ਣ
+    'y': '[X]', // ਯ
+    'z': '[z]', // ਜ਼
+  };
+
+  static String _romanGlob(String query) => query
+      .toLowerCase()
+      .split('')
+      .map((ch) => romanClasses[ch] ?? ('*?['.contains(ch) ? '[\$ch]' : ch))
+      .join();
+
   List<SearchResult> searchFirstLetters(
     String letters, {
     bool anywhere = true,
@@ -455,17 +499,26 @@ class GurbaniDatabase {
     if (query.isEmpty) return const [];
     // Gurmukhi codepoints are U+0A00..U+0A7F; anything in that range → Gurmukhi.
     final gurmukhi = query.runes.any((r) => r >= 0x0A00 && r <= 0x0A7F);
-    final col = gurmukhi ? 'first_letters_uni' : 'first_letters';
     final (filterSql, filterArgs) = _filterClauses(
       writerId: writerId,
       sectionId: sectionId,
       sourceId: sourceId,
     );
+    // Roman input is phonetic (STTM's FirstLetterEng folds ਥ/ਤ/ਟ/ਠ → t in its
+    // data; we fold in the query instead): each typed letter expands to a GLOB
+    // class over the font codes, so t finds ਤ ਥ ਟ ਠ and k finds ਕ ਖ.
+    final (col, op, pattern) = gurmukhi
+        ? ('first_letters_uni', 'LIKE', anywhere ? '%$query%' : '$query%')
+        : (
+            'first_letters',
+            'GLOB',
+            anywhere ? '*${_romanGlob(query)}*' : '${_romanGlob(query)}*',
+          );
     return _toResults(
       _db.select(
-        '$_searchCols WHERE l.$col LIKE ?$filterSql '
+        '$_searchCols WHERE l.$col $op ?$filterSql '
         'ORDER BY l.order_id LIMIT ?',
-        [anywhere ? '%$query%' : '$query%', ...filterArgs, limit],
+        [pattern, ...filterArgs, limit],
       ),
     );
   }

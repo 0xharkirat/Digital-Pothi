@@ -89,6 +89,8 @@ class OverlayServer {
     bool larivaar = false,
     bool vishraam = true,
     double fontScale = 1.0,
+    String text = '#FBF3E3',
+    String accent = '#F0B429',
   }) {
     _last = jsonEncode({
       'g': gurmukhi,
@@ -99,6 +101,8 @@ class OverlayServer {
       'lv': larivaar,
       'vr': vishraam,
       'fs': fontScale,
+      'fg': text, // main text colour - follows the Light/Dark display theme
+      'ac': accent, // roman/marker colour
     });
     for (final c in [..._clients]) {
       try {
@@ -180,6 +184,10 @@ function line(el,key,text){
 }
 function render(d){
   document.body.style.background=d.bg||'#0B1E3B';
+  // Text colours follow the Light/Dark display theme (fg/ac from the app).
+  var fg=d.fg||'#FBF3E3', ac=d.ac||'#F0B429';
+  g.style.color=fg; pa.style.color=fg; en.style.color=fg; en.style.opacity=.86;
+  r.style.color=ac;
   var fs=d.fs||1;
   g.style.fontSize=(7*fs)+'vh'; pa.style.fontSize=(3.4*fs)+'vh';
   en.style.fontSize=(3.2*fs)+'vh'; r.style.fontSize=(2.6*fs)+'vh';

@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 /// The Gurbani font family (see pubspec). One family, weights 400/600/800.
 const kGurmukhiFont = 'GurbaniAkhar';
 
+/// STTM-style hand cursor for custom tap surfaces (raw [InkWell]s); Material
+/// widgets get the same via the button/list/tab themes.
+const kClickCursor = SystemMouseCursors.click;
+
 /// Raw palette. Contrast ratios are against the navy display surface unless
 /// noted; the presenter's readability rides on the Gurmukhi text, never on the
 /// accent, so the accent is only ever a marker/selection colour.
@@ -17,6 +21,10 @@ abstract final class AppColors {
 
   /// Cream - Gurmukhi on the display. 14:1 on navy (AAA); softer than pure white.
   static const cream = Color(0xFFFBF3E3);
+
+  /// Parchment - the light-theme projected surface (STTM's Light Colors). Navy
+  /// text on it clears AAA; warmer than pure white, easier in a bright diwan.
+  static const parchment = Color(0xFFF4ECD8);
 
   /// Amber - transliteration on the display. 8.6:1 on navy (AAA).
   static const amber = Color(0xFFF0B429);
@@ -164,12 +172,39 @@ abstract final class AppTheme {
         onSurfaceVariant: AppColors.ctrlTextMuted,
       );
     }
+    // Flutter desktop defaults to the arrow on buttons (native-app
+    // convention); this app follows STTM's web convention instead - every
+    // interactive surface hovers the hand. Custom InkWells opt in with
+    // [kClickCursor]; Material widgets get it from the themes below.
+    final clickable = WidgetStateProperty.resolveWith<MouseCursor>(
+      (states) => states.contains(WidgetState.disabled)
+          ? SystemMouseCursors.basic
+          : SystemMouseCursors.click,
+    );
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
       // Operator console density: this is a pro tool, not a touch app.
       visualDensity: VisualDensity.compact,
       scaffoldBackgroundColor: dark ? AppColors.ctrlBg : null,
+      iconButtonTheme: IconButtonThemeData(
+        style: ButtonStyle(mouseCursor: clickable),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: ButtonStyle(mouseCursor: clickable),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: ButtonStyle(mouseCursor: clickable),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: ButtonStyle(mouseCursor: clickable),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ButtonStyle(mouseCursor: clickable),
+      ),
+      listTileTheme: ListTileThemeData(mouseCursor: clickable),
+      tabBarTheme: TabBarThemeData(mouseCursor: clickable),
+      popupMenuTheme: PopupMenuThemeData(mouseCursor: clickable),
       extensions: [
         GurbaniTheme(
           accent: AppColors.kesari,
@@ -196,9 +231,12 @@ abstract final class AppTheme {
             height: 1.7,
             color: scheme.onSurfaceVariant,
           ),
-          displayBackground: AppColors.navy,
-          displayText: AppColors.cream,
-          displayAccent: AppColors.amber,
+          // The projected display follows the Light/Dark theme too, like STTM's
+          // Colors: dark = navy surface + cream text; light = parchment surface
+          // + navy text. The Backgrounds presets refine the dark surface.
+          displayBackground: dark ? AppColors.navy : AppColors.parchment,
+          displayText: dark ? AppColors.cream : AppColors.navy,
+          displayAccent: dark ? AppColors.amber : AppColors.amberOnLight,
         ),
       ],
     );

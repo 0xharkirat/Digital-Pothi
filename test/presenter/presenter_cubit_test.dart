@@ -225,6 +225,21 @@ void main() {
       expect(cubit.state.history.first.page, 4);
     });
 
+    test('clearHistory wipes the list and the on-device store', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = Preferences(await SharedPreferences.getInstance());
+      final c = PresenterCubit(db, prefs)..search('ssnh');
+      c.selectResult(c.state.results.first);
+      expect(c.state.history, isNotEmpty);
+      c.clearHistory();
+      expect(c.state.history, isEmpty);
+      await c.close();
+
+      final reopened = PresenterCubit(db, prefs); // same store
+      expect(reopened.state.history, isEmpty, reason: 'cleared persistently');
+      await reopened.close();
+    });
+
     test('openHistory re-opens a past shabad at its line', () {
       cubit
         ..search('hsdb')

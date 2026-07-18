@@ -7,9 +7,10 @@ import '../../theme/app_theme.dart';
 import '../cubit/presenter_cubit.dart';
 import '../gurmukhi_text.dart';
 
-String _hintFor(SearchMode mode) => switch (mode) {
+String _hintFor(SearchMode mode, {required bool english}) => switch (mode) {
   SearchMode.fullWordEnglish => 'Search English translations',
   SearchMode.fullWordGurmukhi => 'Full words in Gurmukhi',
+  _ when english => 'Romanized first letters - mkjt',
   _ => 'First letters - sdvsd or ਸਦਵਸਦ',
 };
 
@@ -26,16 +27,20 @@ class SearchPane extends StatefulWidget {
   State<SearchPane> createState() => _SearchPaneState();
 }
 
+/// The one-of match types (STTM's currentSearchType): radio semantics, so no
+/// checkbox coupling rules.
+enum _Match { start, anywhere, fullWord }
+
 class _SearchPaneState extends State<SearchPane> {
   final _query = TextEditingController();
   final _ang = TextEditingController();
 
-  // STTM's header state: language + two checkboxes. The Ang box overrides
-  // them while it holds a number (mode == ang); these keep the toggles' look
-  // and give the mode to fall back to when the box clears.
+  // STTM's header state: language radio + match-type radio. The Ang box
+  // overrides them while it holds a number (mode == ang); these keep the
+  // header's look and give the mode to fall back to when the box clears.
   bool _english = false;
-  bool _fullWord = false;
-  bool _anywhere = true;
+  _Match _match = _Match.anywhere;
+  bool _keyboardOpen = false;
 
   @override
   void initState() {
@@ -51,10 +56,12 @@ class _SearchPaneState extends State<SearchPane> {
       _query.text = state.query;
     }
     _english = mode == SearchMode.fullWordEnglish;
-    _fullWord =
-        mode == SearchMode.fullWordGurmukhi ||
-        mode == SearchMode.fullWordEnglish;
-    _anywhere = mode != SearchMode.firstLetterStart;
+    _match = switch (mode) {
+      SearchMode.fullWordGurmukhi ||
+      SearchMode.fullWordEnglish => _Match.fullWord,
+      SearchMode.firstLetterStart => _Match.start,
+      _ => _Match.anywhere,
+    };
   }
 
   @override
@@ -64,13 +71,15 @@ class _SearchPaneState extends State<SearchPane> {
     super.dispose();
   }
 
-  SearchMode get _toggleMode {
-    if (_english) return SearchMode.fullWordEnglish;
-    if (_fullWord) return SearchMode.fullWordGurmukhi;
-    return _anywhere
-        ? SearchMode.firstLetterAnywhere
-        : SearchMode.firstLetterStart;
-  }
+  // STTM's model: the language picks the input script, the match radio picks
+  // the mode. English + first letters = romanized first letters (the corpus
+  // search auto-detects roman input); English + Full word = translations.
+  SearchMode get _toggleMode => switch (_match) {
+    _Match.fullWord =>
+      _english ? SearchMode.fullWordEnglish : SearchMode.fullWordGurmukhi,
+    _Match.anywhere => SearchMode.firstLetterAnywhere,
+    _Match.start => SearchMode.firstLetterStart,
+  };
 
   /// A toggle changed: leave Ang mode if its box is empty, else the box keeps
   /// ruling (STTM's side input wins while it has a number).
@@ -105,6 +114,36 @@ class _SearchPaneState extends State<SearchPane> {
     }
   }
 
+  /// On-screen Gurmukhi keyboard edits: insert at the caret (or replace the
+  /// selection) and run the search, exactly like typing.
+  void _insert(String ch) {
+    final v = _query.value;
+    final sel = v.selection.isValid
+        ? v.selection
+        : TextSelection.collapsed(offset: v.text.length);
+    final text = v.text.replaceRange(sel.start, sel.end, ch);
+    _query.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: sel.start + ch.length),
+    );
+    _onQueryChanged(text);
+  }
+
+  void _backspace() {
+    final v = _query.value;
+    final sel = v.selection.isValid
+        ? v.selection
+        : TextSelection.collapsed(offset: v.text.length);
+    if (sel.start == 0 && sel.isCollapsed) return;
+    final start = sel.isCollapsed ? sel.start - 1 : sel.start;
+    final text = v.text.replaceRange(start, sel.end, '');
+    _query.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: start),
+    );
+    _onQueryChanged(text);
+  }
+
   void _openFirst() {
     final cubit = context.read<PresenterCubit>();
     final results = cubit.state.results;
@@ -134,53 +173,61 @@ class _SearchPaneState extends State<SearchPane> {
       builder: (context, state) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // STTM's header row: language radios + match-type checkboxes.
-          Row(
+          // STTM's header row: language radios + match-type radios. A Wrap,
+          // so a narrow pane stacks the two groups instead of overflowing.
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              _MiniToggle(
-                key: const Key('lang_gr'),
-                label: 'ਗੁਰਮੁਖੀ',
-                gurmukhi: true,
-                radio: true,
-                on: !_english,
-                onTap: () {
-                  _english = false;
-                  _fullWord = false;
-                  _applyToggles();
-                },
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _MiniToggle(
+                    key: const Key('lang_gr'),
+                    label: 'ਗੁਰਮੁਖੀ',
+                    gurmukhi: true,
+                    radio: true,
+                    on: !_english,
+                    onTap: () {
+                      _english = false; // script only - the match radio stays
+                      _applyToggles();
+                    },
+                  ),
+                  _MiniToggle(
+                    key: const Key('lang_en'),
+                    label: 'English',
+                    radio: true,
+                    on: _english,
+                    onTap: () {
+                      _english = true; // romanized letters or translations
+                      // STTM's English options are Anywhere + Full word only.
+                      if (_match == _Match.start) _match = _Match.anywhere;
+                      _applyToggles();
+                    },
+                  ),
+                ],
               ),
-              _MiniToggle(
-                key: const Key('lang_en'),
-                label: 'English',
-                radio: true,
-                on: _english,
-                onTap: () {
-                  _english = true;
-                  _fullWord = true; // English search is full-word only
-                  _applyToggles();
-                },
-              ),
-              const Spacer(),
-              _MiniToggle(
-                key: const Key('opt_full_word'),
-                label: 'Full word',
-                on: _fullWord,
-                enabled: !_english, // implied + locked for English
-                onTap: () {
-                  _fullWord = !_fullWord;
-                  _applyToggles();
-                },
-              ),
-              const SizedBox(width: 2),
-              _MiniToggle(
-                key: const Key('opt_anywhere'),
-                label: 'Anywhere',
-                on: _anywhere,
-                enabled: !_english && !_fullWord, // first-letter option only
-                onTap: () {
-                  _anywhere = !_anywhere;
-                  _applyToggles();
-                },
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final (key, label, match) in [
+                    // STTM: English offers Anywhere + Full word only.
+                    if (!_english)
+                      ('match_start', 'First letters', _Match.start),
+                    ('match_anywhere', 'Anywhere', _Match.anywhere),
+                    ('match_full', 'Full word', _Match.fullWord),
+                  ])
+                    _MiniToggle(
+                      key: Key(key),
+                      label: label,
+                      radio: true,
+                      on: _match == match,
+                      onTap: () {
+                        _match = match;
+                        _applyToggles();
+                      },
+                    ),
+                ],
               ),
             ],
           ),
@@ -200,7 +247,22 @@ class _SearchPaneState extends State<SearchPane> {
                   style: theme.textTheme.bodyMedium,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.search, size: 18),
-                    hintText: _hintFor(_toggleMode),
+                    suffixIcon: _english
+                        ? null
+                        : IconButton(
+                            key: const Key('kb_toggle'),
+                            icon: Icon(
+                              Icons.keyboard_outlined,
+                              size: 18,
+                              color: _keyboardOpen
+                                  ? context.gurbani.accent
+                                  : null,
+                            ),
+                            tooltip: 'Gurmukhi keyboard',
+                            onPressed: () =>
+                                setState(() => _keyboardOpen = !_keyboardOpen),
+                          ),
+                    hintText: _hintFor(_toggleMode, english: _english),
                     filled: true,
                     isDense: true,
                     border: const OutlineInputBorder(
@@ -241,6 +303,10 @@ class _SearchPaneState extends State<SearchPane> {
               ),
             ],
           ),
+          if (_keyboardOpen && !_english) ...[
+            const SizedBox(height: 4),
+            _GurmukhiKeyboard(onKey: _insert, onBackspace: _backspace),
+          ],
           const SizedBox(height: 4),
           // Weightless text filters, right-aligned like STTM's "Filter by".
           // A Wrap, so a long selected name on a narrow pane flows to a second
@@ -308,7 +374,8 @@ class _SearchPaneState extends State<SearchPane> {
               names: sourceNames,
               // Ang search is uncapped (a page is a page); the others truncate
               // at the shared query limit.
-              capped: state.mode != SearchMode.ang &&
+              capped:
+                  state.mode != SearchMode.ang &&
                   state.results.length >= kSearchLimit,
             ),
         ],
@@ -325,7 +392,6 @@ class _MiniToggle extends StatelessWidget {
     required this.on,
     required this.onTap,
     this.radio = false,
-    this.enabled = true,
     this.gurmukhi = false,
     super.key,
   });
@@ -333,7 +399,6 @@ class _MiniToggle extends StatelessWidget {
   final String label;
   final bool on;
   final bool radio;
-  final bool enabled;
   final bool gurmukhi;
   final VoidCallback onTap;
 
@@ -341,13 +406,10 @@ class _MiniToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final accent = context.gurbani.accent;
-    final color = !enabled
-        ? theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4)
-        : on
-        ? accent
-        : theme.colorScheme.onSurfaceVariant;
+    final color = on ? accent : theme.colorScheme.onSurfaceVariant;
     return InkWell(
-      onTap: enabled ? onTap : null,
+      mouseCursor: kClickCursor,
+      onTap: onTap,
       borderRadius: BorderRadius.circular(4),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
@@ -416,36 +478,159 @@ class _TextFilter extends StatelessWidget {
         : active
         ? accent
         : theme.colorScheme.onSurfaceVariant;
-    return PopupMenuButton<int>(
-      enabled: enabled,
-      tooltip: 'Filter by $label',
+    // Own InkWell + showMenu instead of PopupMenuButton: its internal anchor
+    // InkWell ignores the theme's cursor, and the hand cursor is the point.
+    return Tooltip(
+      message: 'Filter by $label',
+      waitDuration: const Duration(milliseconds: 600),
+      child: InkWell(
+        mouseCursor: kClickCursor,
+        borderRadius: BorderRadius.circular(4),
+        onTap: enabled ? () => _openMenu(context) : null,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 130),
+                child: Text(
+                  name,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: color,
+                    fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+                  ),
+                ),
+              ),
+              Icon(Icons.arrow_drop_down, size: 16, color: color),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openMenu(BuildContext context) async {
+    final box = context.findRenderObject()! as RenderBox;
+    final overlay =
+        Overlay.of(context).context.findRenderObject()! as RenderBox;
+    final picked = await showMenu<int>(
+      context: context,
       initialValue: value,
-      onSelected: onChanged,
-      itemBuilder: (context) => [
+      position: RelativeRect.fromRect(
+        Rect.fromPoints(
+          box.localToGlobal(Offset.zero, ancestor: overlay),
+          box.localToGlobal(
+            box.size.bottomRight(Offset.zero),
+            ancestor: overlay,
+          ),
+        ),
+        Offset.zero & overlay.size,
+      ),
+      items: [
         const PopupMenuItem(value: 0, child: Text('All')),
         for (final option in options)
           PopupMenuItem(value: option.id, child: Text(option.name)),
       ],
+    );
+    if (picked != null) onChanged(picked);
+  }
+}
+
+/// STTM's on-screen Gurmukhi keyboard, base page: the ਪੈਂਤੀ in order (10 per
+/// row, exactly STTM's withoutMatra layout), space, backspace. First-letter
+/// search only needs the base letters; the matra page can come with full-word
+/// needs.
+class _GurmukhiKeyboard extends StatelessWidget {
+  const _GurmukhiKeyboard({required this.onKey, required this.onBackspace});
+
+  final ValueChanged<String> onKey;
+  final VoidCallback onBackspace;
+
+  static const _rows = [
+    ['ੳ', 'ਅ', 'ੲ', 'ਸ', 'ਹ', 'ਕ', 'ਖ', 'ਗ', 'ਘ', 'ਙ'],
+    ['ਚ', 'ਛ', 'ਜ', 'ਝ', 'ਞ', 'ਟ', 'ਠ', 'ਡ', 'ਢ', 'ਣ'],
+    ['ਤ', 'ਥ', 'ਦ', 'ਧ', 'ਨ', 'ਪ', 'ਫ', 'ਬ', 'ਭ', 'ਮ'],
+    ['ਯ', 'ਰ', 'ਲ', 'ਵ', 'ੜ'],
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    Widget key_(Widget child, VoidCallback onTap, {int flex = 1}) => Expanded(
+      flex: flex,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 130),
-              child: Text(
-                name,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: color,
-                  fontWeight: active ? FontWeight.w600 : FontWeight.w400,
-                ),
-              ),
+        padding: const EdgeInsets.all(2),
+        child: InkWell(
+          mouseCursor: kClickCursor,
+          borderRadius: BorderRadius.circular(5),
+          onTap: onTap,
+          child: Ink(
+            height: 32,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              border: Border.all(color: Colors.black.withValues(alpha: 0.4)),
+              borderRadius: BorderRadius.circular(5),
             ),
-            Icon(Icons.arrow_drop_down, size: 16, color: color),
-          ],
+            child: Center(child: child),
+          ),
         ),
+      ),
+    );
+
+    Widget letter(String ch) => key_(
+      Text(
+        ch,
+        style: TextStyle(
+          fontFamily: kGurmukhiFont,
+          fontSize: 16,
+          color: theme.colorScheme.onSurface,
+        ),
+      ),
+      () => onKey(ch),
+    );
+
+    // STTM's keyboard sits on its own backdrop with an outer border, so it
+    // reads as a surface, not letters floating on the pane.
+    return Container(
+      key: const Key('gurmukhi_keyboard'),
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Column(
+        children: [
+          for (final row in _rows)
+            Row(
+              children: [
+                for (final ch in row) letter(ch),
+                if (row.last == 'ੜ') ...[
+                  key_(
+                    Icon(
+                      Icons.space_bar,
+                      size: 16,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                    () => onKey(' '),
+                    flex: 3,
+                  ),
+                  key_(
+                    Icon(
+                      Icons.backspace_outlined,
+                      size: 14,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                    onBackspace,
+                    flex: 2,
+                  ),
+                ],
+              ],
+            ),
+        ],
       ),
     );
   }
@@ -460,63 +645,67 @@ class _ResultTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final g = context.gurbani;
     final theme = Theme.of(context);
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 4),
-        padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-        decoration: BoxDecoration(
-          // Accent keyed by source, like STTM's result bars.
-          border: Border(
-            left: BorderSide(
-              color: AppColors.sourceColor(result.sourceId),
-              width: 3,
-            ),
-          ),
-          color: theme.colorScheme.surfaceContainerHigh,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Ang ${result.page}   ',
-                    style: TextStyle(
-                      color: g.accent,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
-                  ),
-                  TextSpan(
-                    text: strippedGurmukhi(result.gurmukhi),
-                    style: g.gurmukhi.copyWith(height: 1.5),
-                  ),
-                ],
+    // Ink, not Container: an opaque Container hides the InkWell's hover.
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: InkWell(
+        mouseCursor: kClickCursor,
+        onTap: onTap,
+        child: Ink(
+          padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+          decoration: BoxDecoration(
+            // Accent keyed by source, like STTM's result bars.
+            border: Border(
+              left: BorderSide(
+                color: AppColors.sourceColor(result.sourceId),
+                width: 3,
               ),
             ),
-            // Why an English hit matched - populated by English search only.
-            if (result.translation.isNotEmpty) ...[
+            color: theme.colorScheme.surfaceContainerHigh,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Ang ${result.page}   ',
+                      style: TextStyle(
+                        color: g.accent,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                    TextSpan(
+                      text: strippedGurmukhi(result.gurmukhi),
+                      style: g.gurmukhi.copyWith(height: 1.5),
+                    ),
+                  ],
+                ),
+              ),
+              // Why an English hit matched - populated by English search only.
+              if (result.translation.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text(
+                  result.translation,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall,
+                ),
+              ],
               const SizedBox(height: 2),
               Text(
-                result.translation,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall,
+                [
+                  result.author,
+                  result.section,
+                ].where((s) => s.isNotEmpty).join(', '),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
-            const SizedBox(height: 2),
-            Text(
-              [
-                result.author,
-                result.section,
-              ].where((s) => s.isNotEmpty).join(', '),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

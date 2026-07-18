@@ -1,0 +1,20 @@
+{
+  "schema_semver": "1.0.0",
+  "shabados": {
+    "package": "@shabados/database",
+    "version": "4.8.7",
+    "tgz": "../../tmp/shabados-db/shabados-database-4.8.7.tgz",
+    "sha256": "0c3e46ac4c12811bbbdb3ec08de62cdecceda06013561b7615d19c3df1124ca9"
+  },
+  "anvaad": {
+    "package": "anvaad-js",
+    "version": "1.5.0",
+    "module": "../../tmp/sttm-desktop/node_modules/anvaad-js"
+  },
+  "baseline": {
+    "lines": 141264,
+    "shabads": 12730,
+    "translations": 121110,
+    "transliterations": 282528
+  }
+}
