@@ -225,6 +225,21 @@ void main() {
       expect(cubit.state.history.first.page, 4);
     });
 
+    test('clearHistory wipes the list and the on-device store', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = Preferences(await SharedPreferences.getInstance());
+      final c = PresenterCubit(db, prefs)..search('ssnh');
+      c.selectResult(c.state.results.first);
+      expect(c.state.history, isNotEmpty);
+      c.clearHistory();
+      expect(c.state.history, isEmpty);
+      await c.close();
+
+      final reopened = PresenterCubit(db, prefs); // same store
+      expect(reopened.state.history, isEmpty, reason: 'cleared persistently');
+      await reopened.close();
+    });
+
     test('openHistory re-opens a past shabad at its line', () {
       cubit
         ..search('hsdb')
@@ -444,6 +459,34 @@ void main() {
         expect(second.state.intelligentSpacebar, isFalse);
         await second.close();
       });
+    });
+
+    test('per-row font scales set independently and reset together', () {
+      cubit
+        ..setFontScale(1.4)
+        ..setTranslationScale(1.2)
+        ..setTeekaScale(0.8)
+        ..setTranslitScale(1.1)
+        ..setAnnouncementScale(1.3);
+      expect(cubit.state.fontScale, closeTo(1.4, 1e-9));
+      expect(cubit.state.translationScale, closeTo(1.2, 1e-9));
+      expect(cubit.state.teekaScale, closeTo(0.8, 1e-9));
+      expect(cubit.state.translitScale, closeTo(1.1, 1e-9));
+      expect(cubit.state.announcementScale, closeTo(1.3, 1e-9));
+      // Out of range clamps.
+      cubit.setTranslationScale(9);
+      expect(cubit.state.translationScale, 1.5);
+      // Reset returns every row to 100%.
+      cubit.resetFontSizes();
+      for (final v in [
+        cubit.state.fontScale,
+        cubit.state.translationScale,
+        cubit.state.teekaScale,
+        cubit.state.translitScale,
+        cubit.state.announcementScale,
+      ]) {
+        expect(v, 1.0);
+      }
     });
 
     test('display options toggle and font scale clamps', () {

@@ -89,6 +89,11 @@ class OverlayServer {
     bool larivaar = false,
     bool vishraam = true,
     double fontScale = 1.0,
+    double translationScale = 1.0,
+    double teekaScale = 1.0,
+    double translitScale = 1.0,
+    String text = '#FBF3E3',
+    String accent = '#F0B429',
   }) {
     _last = jsonEncode({
       'g': gurmukhi,
@@ -99,6 +104,11 @@ class OverlayServer {
       'lv': larivaar,
       'vr': vishraam,
       'fs': fontScale,
+      'ts': translationScale,
+      'ks': teekaScale,
+      'rs': translitScale,
+      'fg': text, // main text colour - follows the Light/Dark display theme
+      'ac': accent, // roman/marker colour
     });
     for (final c in [..._clients]) {
       try {
@@ -180,9 +190,14 @@ function line(el,key,text){
 }
 function render(d){
   document.body.style.background=d.bg||'#0B1E3B';
-  var fs=d.fs||1;
-  g.style.fontSize=(7*fs)+'vh'; pa.style.fontSize=(3.4*fs)+'vh';
-  en.style.fontSize=(3.2*fs)+'vh'; r.style.fontSize=(2.6*fs)+'vh';
+  // Text colours follow the Light/Dark display theme (fg/ac from the app).
+  var fg=d.fg||'#FBF3E3', ac=d.ac||'#F0B429';
+  g.style.color=fg; pa.style.color=fg; en.style.color=fg; en.style.opacity=.86;
+  r.style.color=ac;
+  // Per-row scales (STTM's font sizes): Bani, translation, teeka, translit.
+  var fs=d.fs||1, ts=d.ts||1, ks=d.ks||1, rs=d.rs||1;
+  g.style.fontSize=(7*fs)+'vh'; pa.style.fontSize=(3.4*ks)+'vh';
+  en.style.fontSize=(3.2*ts)+'vh'; r.style.fontSize=(2.6*rs)+'vh';
   g.innerHTML=(allow('gurmukhi')&&d.g)?bake(d.g,d.lv,d.vr!==false):'';
   g.style.display=allow('gurmukhi')?'':'none';
   stage.className=d.g?'':'empty';

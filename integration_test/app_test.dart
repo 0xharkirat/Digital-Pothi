@@ -18,7 +18,10 @@ void main() {
 
   patrolTest('launches and shows the presenter', ($) async {
     await $.pumpWidgetAndSettle(
-      GurbaniLiveApp(database: database, prefs: prefs),
+      GurbaniLiveApp(
+        database: database,
+        prefs: prefs,
+      ),
     );
 
     expect($('Gurbani Live'), findsOneWidget);
@@ -28,7 +31,10 @@ void main() {
 
   patrolTest('search finds a shabad and shows it', ($) async {
     await $.pumpWidgetAndSettle(
-      GurbaniLiveApp(database: database, prefs: prefs),
+      GurbaniLiveApp(
+        database: database,
+        prefs: prefs,
+      ),
     );
 
     await $(#search_field).enterText('sdvsd');

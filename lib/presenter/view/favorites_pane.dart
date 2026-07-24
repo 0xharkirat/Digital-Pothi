@@ -64,50 +64,55 @@ class _FavoriteTile extends StatelessWidget {
       entry.section,
       if (entry.page > 0) 'Ang ${entry.page}',
     ].where((s) => s.isNotEmpty).join('  ·  ');
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 6),
-        padding: const EdgeInsets.fromLTRB(12, 10, 6, 10),
-        decoration: BoxDecoration(
-          border: Border(left: BorderSide(color: g.accent, width: 3)),
-          color: theme.colorScheme.surfaceContainerHigh,
-          borderRadius: const BorderRadius.only(
-            topRight: Radius.circular(6),
-            bottomRight: Radius.circular(6),
+    // Ink, not Container: an opaque Container hides the InkWell's hover.
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: InkWell(
+        mouseCursor: kClickCursor,
+        onTap: onTap,
+        child: Ink(
+          padding: const EdgeInsets.fromLTRB(10, 6, 6, 6),
+          decoration: BoxDecoration(
+            border: Border(left: BorderSide(color: g.accent, width: 3)),
+            color: theme.colorScheme.surfaceContainerHigh,
+            borderRadius: const BorderRadius.only(
+              topRight: Radius.circular(6),
+              bottomRight: Radius.circular(6),
+            ),
           ),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    strippedGurmukhi(entry.gurmukhi),
-                    style: g.gurmukhi,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (meta.isNotEmpty) ...[
-                    const SizedBox(height: 2),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      meta,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
+                      strippedGurmukhi(entry.gurmukhi),
+                      // List-size Gurmukhi, like the history tiles.
+                      style: g.gurmukhi.copyWith(fontSize: 18, height: 1.4),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                    if (meta.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        meta,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-            IconButton(
-              icon: Icon(Icons.star, size: 18, color: g.accent),
-              tooltip: 'Remove from favorites',
-              visualDensity: VisualDensity.compact,
-              onPressed: onRemove,
-            ),
-          ],
+              IconButton(
+                icon: Icon(Icons.star, size: 18, color: g.accent),
+                tooltip: 'Remove from favorites',
+                visualDensity: VisualDensity.compact,
+                onPressed: onRemove,
+              ),
+            ],
+          ),
         ),
       ),
     );
