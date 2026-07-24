@@ -43,6 +43,8 @@ String _hex(Color c) =>
 void _pushOverlay(BuildContext context, PresenterState s) {
   final light = Theme.of(context).brightness == Brightness.light;
   final g = context.gurbani;
+  // Quick-insert slides (id 'special') size by the Announcements scale.
+  final special = s.line?.id == 'special';
   context.read<OverlayCubit>().showLine(
     gurmukhi: s.line?.gurmukhi ?? '',
     background: light ? _hex(g.displayBackground) : _bgHexes[s.displayBg]!,
@@ -54,7 +56,10 @@ void _pushOverlay(BuildContext context, PresenterState s) {
     },
     larivaar: s.larivaar,
     vishraam: s.vishraam,
-    fontScale: s.fontScale,
+    fontScale: special ? s.announcementScale : s.fontScale,
+    translationScale: s.translationScale,
+    teekaScale: s.teekaScale,
+    translitScale: s.translitScale,
     text: _hex(g.displayText),
     accent: _hex(g.displayAccent),
   );
@@ -87,7 +92,10 @@ class PresenterView extends StatelessWidget {
               a.displayBg != b.displayBg ||
               a.larivaar != b.larivaar ||
               a.vishraam != b.vishraam ||
-              a.fontScale != b.fontScale,
+              a.fontScale != b.fontScale ||
+              a.translationScale != b.translationScale ||
+              a.teekaScale != b.teekaScale ||
+              a.translitScale != b.translitScale,
           listener: (context, s) => _pushOverlay(context, s),
         ),
         // Flipping the Light/Dark theme repaints the projector too, not just
@@ -282,7 +290,11 @@ class _DisplayPaneHost extends StatelessWidget {
             a.vishraam != b.vishraam ||
             a.fontScale != b.fontScale ||
             a.leftAlign != b.leftAlign ||
-            a.slideTransitions != b.slideTransitions,
+            a.slideTransitions != b.slideTransitions ||
+            a.translationScale != b.translationScale ||
+            a.teekaScale != b.teekaScale ||
+            a.translitScale != b.translitScale ||
+            a.announcementScale != b.announcementScale,
         builder: (context, state) {
           // Light theme = parchment surface (from the GurbaniTheme tokens);
           // dark theme = the selected background preset.
@@ -315,8 +327,14 @@ class _DisplayPaneHost extends StatelessWidget {
               background: bg,
               larivaar: state.larivaar,
               vishraam: state.vishraam,
-              fontScale: state.fontScale,
+              // Quick-insert slides size by the Announcements scale.
+              fontScale: line.id == 'special'
+                  ? state.announcementScale
+                  : state.fontScale,
               leftAlign: state.leftAlign,
+              translationScale: state.translationScale,
+              teekaScale: state.teekaScale,
+              translitScale: state.translitScale,
             );
           }
           // STTM's Slide Transitions: cross-fade the projected line on change.

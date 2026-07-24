@@ -75,6 +75,9 @@ class OverlayCubit extends Cubit<OverlayStatus> {
     bool larivaar = false,
     bool vishraam = true,
     double fontScale = 1.0,
+    double translationScale = 1.0,
+    double teekaScale = 1.0,
+    double translitScale = 1.0,
     String text = '#FBF3E3',
     String accent = '#F0B429',
   }) {
@@ -88,6 +91,9 @@ class OverlayCubit extends Cubit<OverlayStatus> {
       larivaar: larivaar,
       vishraam: vishraam,
       fontScale: fontScale,
+      translationScale: translationScale,
+      teekaScale: teekaScale,
+      translitScale: translitScale,
       text: text,
       accent: accent,
     );

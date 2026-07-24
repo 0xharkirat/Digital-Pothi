@@ -62,6 +62,10 @@ class PresenterState extends Equatable {
     this.intelligentSpacebar = true,
     this.leftAlign = false,
     this.slideTransitions = true,
+    this.translationScale = 1.0,
+    this.teekaScale = 1.0,
+    this.translitScale = 1.0,
+    this.announcementScale = 1.0,
   });
 
   final String query;
@@ -98,6 +102,14 @@ class PresenterState extends Equatable {
   final double fontScale; // 0.7 .. 1.5, multiplies the base sizes
   final bool leftAlign; // STTM left-align: line + rows flush-left, not centred
   final bool slideTransitions; // fade the projected line on change
+
+  /// STTM's per-row font sizes: each content row scales independently of the
+  /// Bani size ([fontScale]). 0.7 .. 1.5, like fontScale. Announcement scales
+  /// the quick-insert slides.
+  final double translationScale;
+  final double teekaScale;
+  final double translitScale;
+  final double announcementScale;
 
   /// Recently shown lines, most recent first. Persisted across launches.
   final List<HistoryEntry> history;
@@ -191,6 +203,10 @@ class PresenterState extends Equatable {
     bool? intelligentSpacebar,
     bool? leftAlign,
     bool? slideTransitions,
+    double? translationScale,
+    double? teekaScale,
+    double? translitScale,
+    double? announcementScale,
   }) => PresenterState(
     query: query ?? this.query,
     mode: mode ?? this.mode,
@@ -217,6 +233,10 @@ class PresenterState extends Equatable {
     intelligentSpacebar: intelligentSpacebar ?? this.intelligentSpacebar,
     leftAlign: leftAlign ?? this.leftAlign,
     slideTransitions: slideTransitions ?? this.slideTransitions,
+    translationScale: translationScale ?? this.translationScale,
+    teekaScale: teekaScale ?? this.teekaScale,
+    translitScale: translitScale ?? this.translitScale,
+    announcementScale: announcementScale ?? this.announcementScale,
   );
 
   // `display` is derived from `current`, so it's left out - `current` already
@@ -247,5 +267,9 @@ class PresenterState extends Equatable {
     intelligentSpacebar,
     leftAlign,
     slideTransitions,
+    translationScale,
+    teekaScale,
+    translitScale,
+    announcementScale,
   ];
 }

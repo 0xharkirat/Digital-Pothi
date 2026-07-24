@@ -20,6 +20,10 @@ const _kFavorites = 'favorites';
 const _kIntelligentSpacebar = 'intelligentSpacebar';
 const _kLeftAlign = 'leftAlign';
 const _kSlideTransitions = 'slideTransitions';
+const _kTranslationScale = 'translationScale';
+const _kTeekaScale = 'teekaScale';
+const _kTranslitScale = 'translitScale';
+const _kAnnouncementScale = 'announcementScale';
 
 /// Drives the presenter: search the corpus, load a shabad, and choose which line
 /// is shown. The shown line comes from one of two places - the operator (search
@@ -55,6 +59,10 @@ class PresenterCubit extends Cubit<PresenterState> {
     intelligentSpacebar: p.getBool(_kIntelligentSpacebar) ?? true,
     leftAlign: p.getBool(_kLeftAlign) ?? false,
     slideTransitions: p.getBool(_kSlideTransitions) ?? true,
+    translationScale: p.getDouble(_kTranslationScale) ?? 1.0,
+    teekaScale: p.getDouble(_kTeekaScale) ?? 1.0,
+    translitScale: p.getDouble(_kTranslitScale) ?? 1.0,
+    announcementScale: p.getDouble(_kAnnouncementScale) ?? 1.0,
   );
 
   static List<HistoryEntry> _decodeEntries(String? json) {
@@ -292,11 +300,59 @@ class PresenterCubit extends Cubit<PresenterState> {
   /// Nudge the font scale within sensible bounds.
   void bumpFontScale(double by) => setFontScale(state.fontScale + by);
 
-  /// Set the font scale directly (the settings slider), clamped.
+  /// Set the Bani font scale directly (the settings slider), clamped.
   void setFontScale(double scale) {
     final v = scale.clamp(0.7, 1.5);
     _prefs.setDouble(_kFontScale, v);
     emit(state.copyWith(fontScale: v));
+  }
+
+  /// STTM's per-row font sizes (Translation / Teeka / Transliteration /
+  /// Announcements), each independent of the Bani size.
+  void setTranslationScale(double v) {
+    final s = v.clamp(0.7, 1.5);
+    _prefs.setDouble(_kTranslationScale, s);
+    emit(state.copyWith(translationScale: s));
+  }
+
+  void setTeekaScale(double v) {
+    final s = v.clamp(0.7, 1.5);
+    _prefs.setDouble(_kTeekaScale, s);
+    emit(state.copyWith(teekaScale: s));
+  }
+
+  void setTranslitScale(double v) {
+    final s = v.clamp(0.7, 1.5);
+    _prefs.setDouble(_kTranslitScale, s);
+    emit(state.copyWith(translitScale: s));
+  }
+
+  void setAnnouncementScale(double v) {
+    final s = v.clamp(0.7, 1.5);
+    _prefs.setDouble(_kAnnouncementScale, s);
+    emit(state.copyWith(announcementScale: s));
+  }
+
+  /// STTM's Reset Font Sizes: every row back to 100%.
+  void resetFontSizes() {
+    for (final k in [
+      _kFontScale,
+      _kTranslationScale,
+      _kTeekaScale,
+      _kTranslitScale,
+      _kAnnouncementScale,
+    ]) {
+      _prefs.setDouble(k, 1);
+    }
+    emit(
+      state.copyWith(
+        fontScale: 1,
+        translationScale: 1,
+        teekaScale: 1,
+        translitScale: 1,
+        announcementScale: 1,
+      ),
+    );
   }
 
   /// Re-open a shabad from the History pane, at the line it was shown on.

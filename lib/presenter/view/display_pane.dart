@@ -18,6 +18,9 @@ class DisplayPane extends StatelessWidget {
     this.vishraam = true,
     this.fontScale = 1.0,
     this.leftAlign = false,
+    this.translationScale = 1.0,
+    this.teekaScale = 1.0,
+    this.translitScale = 1.0,
     super.key,
   });
 
@@ -29,8 +32,14 @@ class DisplayPane extends StatelessWidget {
 
   final bool larivaar;
   final bool vishraam;
-  final double fontScale;
-  final bool leftAlign; // STTM left-align: flush the text left instead of centre
+  final double fontScale; // Bani
+  final bool
+  leftAlign; // STTM left-align: flush the text left instead of centre
+
+  /// STTM's per-row sizes, independent of the Bani size.
+  final double translationScale;
+  final double teekaScale;
+  final double translitScale;
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +49,7 @@ class DisplayPane extends StatelessWidget {
         ? CrossAxisAlignment.start
         : CrossAxisAlignment.center;
     final en = display.translations['en'];
+    final teeka = display.translations['pa'];
     // The roman transliteration embeds the same vishraam marks (`; , .`) as the
     // Gurmukhi, so strip them here too - only the English (real punctuation) and
     // Punjabi teeka keep theirs.
@@ -75,25 +85,40 @@ class DisplayPane extends StatelessWidget {
                   color: g.displayText,
                 ),
               ),
+              // STTM's content rows, in order: translation, teeka, then
+              // transliteration - each sized by its own scale.
               if (en != null) ...[
-                SizedBox(height: 28 * fontScale),
+                const SizedBox(height: 24),
                 Text(
                   en,
                   textAlign: align,
                   style: TextStyle(
-                    fontSize: 22 * fontScale,
+                    fontSize: 22 * translationScale,
                     height: 1.4,
                     color: g.displayText.withValues(alpha: 0.86),
                   ),
                 ),
               ],
+              if (teeka != null && teeka.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Text(
+                  teeka,
+                  textAlign: align,
+                  style: TextStyle(
+                    fontFamily: kGurmukhiFont,
+                    fontSize: 20 * teekaScale,
+                    height: 1.5,
+                    color: g.displayText.withValues(alpha: 0.78),
+                  ),
+                ),
+              ],
               if (roman != null) ...[
-                SizedBox(height: 18 * fontScale),
+                const SizedBox(height: 16),
                 Text(
                   roman,
                   textAlign: align,
                   style: TextStyle(
-                    fontSize: 18 * fontScale,
+                    fontSize: 18 * translitScale,
                     height: 1.4,
                     color: g.displayAccent,
                   ),
