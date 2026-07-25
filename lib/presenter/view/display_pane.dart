@@ -21,6 +21,7 @@ class DisplayPane extends StatelessWidget {
     this.translationScale = 1.0,
     this.teekaScale = 1.0,
     this.translitScale = 1.0,
+    this.nextLine,
     super.key,
   });
 
@@ -40,6 +41,10 @@ class DisplayPane extends StatelessWidget {
   final double translationScale;
   final double teekaScale;
   final double translitScale;
+
+  /// STTM's Next Line: the upcoming line's Gurmukhi, shown dimmed under the
+  /// slide. Null = don't show it (last line, or the setting is off).
+  final String? nextLine;
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +126,22 @@ class DisplayPane extends StatelessWidget {
                     fontSize: 18 * translitScale,
                     height: 1.4,
                     color: g.displayAccent,
+                  ),
+                ),
+              ],
+              // STTM's Next Line: the upcoming line, Gurbani only, dimmed and
+              // slightly smaller (0.9x), under everything else.
+              if (nextLine != null && nextLine!.isNotEmpty) ...[
+                SizedBox(height: 30 * fontScale),
+                Text(
+                  strippedGurmukhi(nextLine!),
+                  textAlign: align,
+                  style: TextStyle(
+                    fontFamily: kGurmukhiFont,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 46 * fontScale * 0.9,
+                    height: 1.6,
+                    color: g.displayText.withValues(alpha: 0.5),
                   ),
                 ),
               ],

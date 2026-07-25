@@ -20,6 +20,7 @@ const _kFavorites = 'favorites';
 const _kIntelligentSpacebar = 'intelligentSpacebar';
 const _kLeftAlign = 'leftAlign';
 const _kSlideTransitions = 'slideTransitions';
+const _kDisplayNextLine = 'displayNextLine';
 const _kTranslationScale = 'translationScale';
 const _kTeekaScale = 'teekaScale';
 const _kTranslitScale = 'translitScale';
@@ -59,6 +60,7 @@ class PresenterCubit extends Cubit<PresenterState> {
     intelligentSpacebar: p.getBool(_kIntelligentSpacebar) ?? true,
     leftAlign: p.getBool(_kLeftAlign) ?? false,
     slideTransitions: p.getBool(_kSlideTransitions) ?? true,
+    displayNextLine: p.getBool(_kDisplayNextLine) ?? false,
     translationScale: p.getDouble(_kTranslationScale) ?? 1.0,
     teekaScale: p.getDouble(_kTeekaScale) ?? 1.0,
     translitScale: p.getDouble(_kTranslitScale) ?? 1.0,
@@ -295,6 +297,11 @@ class PresenterCubit extends Cubit<PresenterState> {
   void toggleSlideTransitions() {
     _prefs.setBool(_kSlideTransitions, value: !state.slideTransitions);
     emit(state.copyWith(slideTransitions: !state.slideTransitions));
+  }
+
+  void toggleDisplayNextLine() {
+    _prefs.setBool(_kDisplayNextLine, value: !state.displayNextLine);
+    emit(state.copyWith(displayNextLine: !state.displayNextLine));
   }
 
   /// Nudge the font scale within sensible bounds.

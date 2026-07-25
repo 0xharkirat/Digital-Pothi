@@ -16,6 +16,9 @@ void main() {
     expect(overlayPageHtml, contains('ੴ')); // placeholder before any line
     // Reads the ?show= param so each output can render a different subset.
     expect(overlayPageHtml, contains("get('show')"));
+    // Next-line preview: its own element, rendered dimmed (opacity < 1).
+    expect(overlayPageHtml, contains('id="nl"'));
+    expect(overlayPageHtml, contains('opacity:.5'));
   });
 
   test(
@@ -43,6 +46,22 @@ void main() {
       expect(line['pa'], 'ਹੇ ਸੱਜਣ');
       expect(line['roman'], 'saajan dhes');
       expect(line['bg'], '#0B1E3B');
+      expect(line['nl'], isNull); // Next Line off unless a preview is passed
     },
   );
+
+  test('showLine carries the next-line preview when Next Line is on', () async {
+    final server = OverlayServer();
+    await server.start(port: 0);
+    addTearDown(server.stop);
+
+    server.showLine(
+      gurmukhi: 'ਪਹਿਲੀ ਤੁਕ',
+      background: '#0B1E3B',
+      nextLine: 'ਅਗਲੀ ਤੁਕ',
+    );
+
+    final line = jsonDecode(server.lastLine) as Map<String, dynamic>;
+    expect(line['nl'], 'ਅਗਲੀ ਤੁਕ');
+  });
 }

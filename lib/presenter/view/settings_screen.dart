@@ -213,7 +213,11 @@ class _SettingsBody extends StatelessWidget {
         ),
         const _SubHeading('DISPLAY OPTIONS'),
         const _SoonSwitch('Akhand Paatth View'),
-        const _SoonSwitch('Next Line'),
+        _SwitchRow(
+          label: 'Next Line',
+          value: state.displayNextLine,
+          onChanged: (_) => cubit.toggleDisplayNextLine(),
+        ),
         _SwitchRow(
           label: 'Left-Align',
           value: state.leftAlign,

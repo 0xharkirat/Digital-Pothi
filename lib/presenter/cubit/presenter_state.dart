@@ -62,6 +62,7 @@ class PresenterState extends Equatable {
     this.intelligentSpacebar = true,
     this.leftAlign = false,
     this.slideTransitions = true,
+    this.displayNextLine = false,
     this.translationScale = 1.0,
     this.teekaScale = 1.0,
     this.translitScale = 1.0,
@@ -102,6 +103,7 @@ class PresenterState extends Equatable {
   final double fontScale; // 0.7 .. 1.5, multiplies the base sizes
   final bool leftAlign; // STTM left-align: line + rows flush-left, not centred
   final bool slideTransitions; // fade the projected line on change
+  final bool displayNextLine; // show the upcoming line dimmed under the current
 
   /// STTM's per-row font sizes: each content row scales independently of the
   /// Bani size ([fontScale]). 0.7 .. 1.5, like fontScale. Announcement scales
@@ -157,6 +159,16 @@ class PresenterState extends Equatable {
 
   bool get isFavorite => favorites.any((f) => f.lineId == line?.id);
 
+  /// The next-line preview (STTM's Next Line): the next verse's Gurmukhi in the
+  /// loaded shabad, or null at the last line or on a single-line quick-insert
+  /// slide (nothing to preview). Independent of who set the current line.
+  String? get nextLinePreview {
+    final id = line?.id;
+    if (id == null || id == 'special') return null;
+    final n = current + 1;
+    return n < shabad.length ? shabad[n].gurmukhi : null;
+  }
+
   /// What the empty results area says: a per-mode prompt before typing, and a
   /// real "no results" once a query is in - noting active filters, so
   /// filtered-out-everything is never mistaken for an empty corpus.
@@ -203,6 +215,7 @@ class PresenterState extends Equatable {
     bool? intelligentSpacebar,
     bool? leftAlign,
     bool? slideTransitions,
+    bool? displayNextLine,
     double? translationScale,
     double? teekaScale,
     double? translitScale,
@@ -233,6 +246,7 @@ class PresenterState extends Equatable {
     intelligentSpacebar: intelligentSpacebar ?? this.intelligentSpacebar,
     leftAlign: leftAlign ?? this.leftAlign,
     slideTransitions: slideTransitions ?? this.slideTransitions,
+    displayNextLine: displayNextLine ?? this.displayNextLine,
     translationScale: translationScale ?? this.translationScale,
     teekaScale: teekaScale ?? this.teekaScale,
     translitScale: translitScale ?? this.translitScale,
@@ -267,6 +281,7 @@ class PresenterState extends Equatable {
     intelligentSpacebar,
     leftAlign,
     slideTransitions,
+    displayNextLine,
     translationScale,
     teekaScale,
     translitScale,

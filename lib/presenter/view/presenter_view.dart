@@ -60,6 +60,7 @@ void _pushOverlay(BuildContext context, PresenterState s) {
     translationScale: s.translationScale,
     teekaScale: s.teekaScale,
     translitScale: s.translitScale,
+    nextLine: s.displayNextLine ? s.nextLinePreview : null,
     text: _hex(g.displayText),
     accent: _hex(g.displayAccent),
   );
@@ -95,7 +96,8 @@ class PresenterView extends StatelessWidget {
               a.fontScale != b.fontScale ||
               a.translationScale != b.translationScale ||
               a.teekaScale != b.teekaScale ||
-              a.translitScale != b.translitScale,
+              a.translitScale != b.translitScale ||
+              a.displayNextLine != b.displayNextLine,
           listener: (context, s) => _pushOverlay(context, s),
         ),
         // Flipping the Light/Dark theme repaints the projector too, not just
@@ -294,7 +296,8 @@ class _DisplayPaneHost extends StatelessWidget {
             a.translationScale != b.translationScale ||
             a.teekaScale != b.teekaScale ||
             a.translitScale != b.translitScale ||
-            a.announcementScale != b.announcementScale,
+            a.announcementScale != b.announcementScale ||
+            a.displayNextLine != b.displayNextLine,
         builder: (context, state) {
           // Light theme = parchment surface (from the GurbaniTheme tokens);
           // dark theme = the selected background preset.
@@ -335,6 +338,7 @@ class _DisplayPaneHost extends StatelessWidget {
               translationScale: state.translationScale,
               teekaScale: state.teekaScale,
               translitScale: state.translitScale,
+              nextLine: state.displayNextLine ? state.nextLinePreview : null,
             );
           }
           // STTM's Slide Transitions: cross-fade the projected line on change.

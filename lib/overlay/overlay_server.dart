@@ -92,6 +92,7 @@ class OverlayServer {
     double translationScale = 1.0,
     double teekaScale = 1.0,
     double translitScale = 1.0,
+    String? nextLine,
     String text = '#FBF3E3',
     String accent = '#F0B429',
   }) {
@@ -100,6 +101,7 @@ class OverlayServer {
       'en': english,
       'pa': punjabi,
       'roman': roman,
+      'nl': nextLine, // next-line preview (STTM Next Line); null = off
       'bg': background,
       'lv': larivaar,
       'vr': vishraam,
@@ -154,12 +156,15 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0B1E3B}
 #en{color:rgba(251,243,227,.86);font-family:system-ui,sans-serif;
   font-size:3.2vh;line-height:1.4;margin:2vh 0 0}
 #r{color:#F0B429;font-family:system-ui,sans-serif;font-size:2.6vh;margin:2vh 0 0}
+#nl{font-family:GurbaniAkhar;font-weight:800;line-height:1.6;
+  font-size:6.3vh;margin:3vh 0 0;opacity:.5}
 .empty #g{opacity:.35}
 </style></head><body>
-<div id="stage"><p id="g">ੴ</p><p id="pa"></p><p id="en"></p><p id="r"></p></div>
+<div id="stage"><p id="g">ੴ</p><p id="pa"></p><p id="en"></p><p id="r"></p><p id="nl"></p></div>
 <script>
 var g=document.getElementById('g'),pa=document.getElementById('pa'),
     en=document.getElementById('en'),r=document.getElementById('r'),
+    nl=document.getElementById('nl'),
     stage=document.getElementById('stage');
 // Which content this output renders. ?show=gurmukhi,punjabi -> only those.
 // No param -> everything with content.
@@ -193,13 +198,17 @@ function render(d){
   // Text colours follow the Light/Dark display theme (fg/ac from the app).
   var fg=d.fg||'#FBF3E3', ac=d.ac||'#F0B429';
   g.style.color=fg; pa.style.color=fg; en.style.color=fg; en.style.opacity=.86;
-  r.style.color=ac;
+  r.style.color=ac; nl.style.color=fg;
   // Per-row scales (STTM's font sizes): Bani, translation, teeka, translit.
   var fs=d.fs||1, ts=d.ts||1, ks=d.ks||1, rs=d.rs||1;
   g.style.fontSize=(7*fs)+'vh'; pa.style.fontSize=(3.4*ks)+'vh';
   en.style.fontSize=(3.2*ts)+'vh'; r.style.fontSize=(2.6*rs)+'vh';
+  nl.style.fontSize=(6.3*fs)+'vh';
   g.innerHTML=(allow('gurmukhi')&&d.g)?bake(d.g,d.lv,d.vr!==false):'';
   g.style.display=allow('gurmukhi')?'':'none';
+  // Next-line preview (STTM Next Line): Gurbani only, dimmed, gurmukhi-gated.
+  nl.innerHTML=(allow('gurmukhi')&&d.nl)?bake(d.nl,d.lv,false):'';
+  nl.style.display=(allow('gurmukhi')&&d.nl)?'':'none';
   stage.className=d.g?'':'empty';
   line(pa,'punjabi',d.pa);
   line(en,'english',d.en);

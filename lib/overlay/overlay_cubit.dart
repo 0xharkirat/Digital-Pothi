@@ -78,6 +78,7 @@ class OverlayCubit extends Cubit<OverlayStatus> {
     double translationScale = 1.0,
     double teekaScale = 1.0,
     double translitScale = 1.0,
+    String? nextLine,
     String text = '#FBF3E3',
     String accent = '#F0B429',
   }) {
@@ -94,6 +95,7 @@ class OverlayCubit extends Cubit<OverlayStatus> {
       translationScale: translationScale,
       teekaScale: teekaScale,
       translitScale: translitScale,
+      nextLine: nextLine,
       text: text,
       accent: accent,
     );

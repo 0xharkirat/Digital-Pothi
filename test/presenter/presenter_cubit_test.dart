@@ -461,6 +461,31 @@ void main() {
       });
     });
 
+    test('nextLinePreview: next verse, null at end and on special slides', () {
+      cubit
+        ..search('ssnh')
+        ..selectResult(cubit.state.results.first); // shabad a,b at line 0
+      // At line 0, the preview is line b's gurmukhi.
+      expect(cubit.state.nextLinePreview, kLineB);
+      cubit.nextLine(); // now at the last line
+      expect(cubit.state.nextLinePreview, isNull);
+      // Quick-insert slide: nothing to preview.
+      cubit.showWaheguru();
+      expect(cubit.state.nextLinePreview, isNull);
+    });
+
+    test('displayNextLine toggles and persists', () async {
+      expect(cubit.state.displayNextLine, isFalse);
+      cubit.toggleDisplayNextLine();
+      expect(cubit.state.displayNextLine, isTrue);
+      final second = PresenterCubit(
+        db,
+        Preferences(await SharedPreferences.getInstance()),
+      );
+      expect(second.state.displayNextLine, isTrue);
+      await second.close();
+    });
+
     test('per-row font scales set independently and reset together', () {
       cubit
         ..setFontScale(1.4)
