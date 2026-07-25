@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubit/presenter_cubit.dart';
+import '../gurmukhi_text.dart';
 
 /// Gives the operator keyboard control of the shown line: arrows / space to move
 /// line, page-up/down for shabad, home/end, esc to blank. A body-level [Focus]
@@ -38,6 +39,26 @@ class _PresenterKeyboardState extends State<PresenterKeyboard> {
     }
     final c = context.read<PresenterCubit>();
     final key = event.logicalKey;
+    // STTM's Ctrl/Cmd+C: copy the active verse's Gurmukhi. Only on the initial
+    // press (not key-repeat), so holding the keys doesn't spam the clipboard.
+    if (event is KeyDownEvent &&
+        key == LogicalKeyboardKey.keyC &&
+        (HardwareKeyboard.instance.isControlPressed ||
+            HardwareKeyboard.instance.isMetaPressed)) {
+      final text = c.state.copyableGurmukhi;
+      if (text == null) return KeyEventResult.ignored;
+      Clipboard.setData(ClipboardData(text: strippedGurmukhi(text)));
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('Verse copied to clipboard'),
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      return KeyEventResult.handled;
+    }
     if (key == LogicalKeyboardKey.space) {
       c.advance(); // STTM's intelligent spacebar; plain when no home is set
     } else if (key == LogicalKeyboardKey.arrowDown ||

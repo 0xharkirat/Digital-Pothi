@@ -169,6 +169,14 @@ class PresenterState extends Equatable {
     return n < shabad.length ? shabad[n].gurmukhi : null;
   }
 
+  /// The active line's Gurmukhi to copy (STTM's Ctrl+C copies the verse only),
+  /// or null when there's nothing to copy - no line or a quick-insert slide.
+  /// Bani lines copy fine; only synthetic 'special' slides are excluded.
+  String? get copyableGurmukhi {
+    final l = line;
+    return (l == null || l.id == 'special') ? null : l.gurmukhi;
+  }
+
   /// What the empty results area says: a per-mode prompt before typing, and a
   /// real "no results" once a query is in - noting active filters, so
   /// filtered-out-everything is never mistaken for an empty corpus.

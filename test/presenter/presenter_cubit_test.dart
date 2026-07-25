@@ -474,6 +474,18 @@ void main() {
       expect(cubit.state.nextLinePreview, isNull);
     });
 
+    test(
+      'copyableGurmukhi: the active verse, null on a quick-insert slide',
+      () {
+        cubit
+          ..search('ssnh')
+          ..selectResult(cubit.state.results.first); // line 'a'
+        expect(cubit.state.copyableGurmukhi, kLineA);
+        cubit.showWaheguru(); // special slide - nothing to copy
+        expect(cubit.state.copyableGurmukhi, isNull);
+      },
+    );
+
     test('displayNextLine toggles and persists', () async {
       expect(cubit.state.displayNextLine, isFalse);
       cubit.toggleDisplayNextLine();

@@ -80,6 +80,108 @@ void main() {
     );
   });
 
+  testWidgets('Ctrl+C copies the active verse and shows a toast', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = Preferences(await SharedPreferences.getInstance());
+    final db = openTestCorpus();
+    addTearDown(db.dispose);
+    final cubit = PresenterCubit(db, prefs)..search('ssnh');
+    cubit.selectResult(cubit.state.results.first); // line 'a'
+    addTearDown(cubit.close);
+
+    final copied = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'Clipboard.setData') {
+          copied.add((call.arguments as Map)['text'] as String);
+        }
+        return null;
+      },
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        null,
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BlocProvider.value(
+          value: cubit,
+          child: const PresenterKeyboard(
+            child: Scaffold(body: SizedBox.expand()),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyC);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await tester.pump();
+
+    expect(copied, [kLineA], reason: 'the clean Gurmukhi of the active line');
+    expect(find.text('Verse copied to clipboard'), findsOneWidget);
+  });
+
+  testWidgets('Ctrl+C in the search box does not copy the verse', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = Preferences(await SharedPreferences.getInstance());
+    final db = openTestCorpus();
+    addTearDown(db.dispose);
+    final cubit = PresenterCubit(db, prefs)..search('ssnh');
+    cubit.selectResult(cubit.state.results.first);
+    addTearDown(cubit.close);
+
+    final copied = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'Clipboard.setData') {
+          copied.add((call.arguments as Map)['text'] as String);
+        }
+        return null;
+      },
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        null,
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BlocProvider.value(
+          value: cubit,
+          child: const PresenterKeyboard(
+            child: Material(child: TextField(key: Key('query'))),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.byKey(const Key('query')));
+    await tester.pump();
+
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyC);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await tester.pump();
+
+    expect(
+      copied,
+      isNot(contains(kLineA)),
+      reason: 'text-field copy must not be hijacked by the verse copy',
+    );
+  });
+
   testWidgets('typing in a text field keeps its spaces and arrows', (
     tester,
   ) async {
