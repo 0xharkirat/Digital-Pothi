@@ -366,6 +366,12 @@ class PresenterCubit extends Cubit<PresenterState> {
   void openHistory(HistoryEntry entry) =>
       _showLineOf(entry.lineId, following: false);
 
+  /// STTM's Random Shabad: open a random SGGS shabad at its first line.
+  void openRandomShabad() {
+    final id = _db.randomShabadLineId();
+    if (id.isNotEmpty) _showLineOf(id, following: false);
+  }
+
   /// Wipe the session history (STTM's Clear History), including the store.
   void clearHistory() {
     _save(_kHistory, const []);

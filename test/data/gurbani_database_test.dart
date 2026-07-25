@@ -36,6 +36,18 @@ void main() {
       expect(gurbani.shabadLines('S2').single.gurmukhi, kLineC);
     });
 
+    test('randomShabadLineId picks a source-scoped shabad first line', () {
+      // Draw many times: source-1 shabads are S1/S2/S4 (first lines a/c/k0);
+      // S3 (Dasam, source 2) must never appear.
+      final ids = {for (var i = 0; i < 40; i++) gurbani.randomShabadLineId()};
+      expect(ids, isNot(contains('')), reason: 'always resolves a line');
+      expect(ids, isNot(contains('d')), reason: 'source-2 shabads excluded');
+      expect(ids.every(['a', 'c', 'k0'].contains), isTrue);
+      // Whatever it returns is the FIRST line of its shabad.
+      final ctx = gurbani.shabadContextFor(ids.first);
+      expect(ctx.lines.first.id, ids.first);
+    });
+
     test('verses carry the corpus line type and physical ang line', () {
       final kirtan = gurbani.shabadLines(kKirtanShabad);
       expect(kirtan.map((v) => v.typeId), [2, 1, 4, 4, 3, 4, 4]);

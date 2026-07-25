@@ -474,6 +474,15 @@ void main() {
       expect(cubit.state.nextLinePreview, isNull);
     });
 
+    test('openRandomShabad projects a real SGGS shabad at its first line', () {
+      cubit.openRandomShabad();
+      expect(cubit.state.shabad, isNotEmpty);
+      final line = cubit.state.line;
+      expect(line, isNotNull);
+      expect(line!.id, isIn(['a', 'c', 'k0']), reason: 'a source-1 first line');
+      expect(cubit.state.current, 0, reason: 'opens at the shabad start');
+    });
+
     test(
       'copyableGurmukhi: the active verse, null on a quick-insert slide',
       () {

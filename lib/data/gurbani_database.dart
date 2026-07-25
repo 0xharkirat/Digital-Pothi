@@ -273,6 +273,22 @@ class GurbaniDatabase {
     ),
   );
 
+  /// A random shabad's first line id, scoped to a source (SGGS = 1) - STTM's
+  /// Random Shabad. Picks the shabad first (uniform over shabads), then its
+  /// opening line. Empty string when the source has no shabads.
+  String randomShabadLineId({int sourceId = 1}) {
+    final shabad = _db.select(
+      'SELECT id FROM shabads WHERE source_id = ? ORDER BY RANDOM() LIMIT 1',
+      [sourceId],
+    );
+    if (shabad.isEmpty) return '';
+    final line = _db.select(
+      'SELECT id FROM lines WHERE shabad_id = ? ORDER BY order_id LIMIT 1',
+      [shabad.first['id']],
+    );
+    return line.isEmpty ? '' : line.first['id'] as String;
+  }
+
   /// The shabad that contains [lineId], with its author + raag - for showing a
   /// line (a search hit or one the tracker found) in its full context. Empty
   /// [ShabadContext.lines] if the line is unknown.

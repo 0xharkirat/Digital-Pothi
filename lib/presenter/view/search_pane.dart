@@ -301,6 +301,15 @@ class _SearchPaneState extends State<SearchPane> {
                   ),
                 ),
               ),
+              const SizedBox(width: 6),
+              // STTM's Random Shabad - a quick jump to any SGGS shabad.
+              IconButton(
+                key: const Key('random_shabad'),
+                icon: const Icon(Icons.shuffle, size: 18),
+                tooltip: 'Random Shabad',
+                onPressed: () =>
+                    context.read<PresenterCubit>().openRandomShabad(),
+              ),
             ],
           ),
           if (_keyboardOpen && !_english) ...[
