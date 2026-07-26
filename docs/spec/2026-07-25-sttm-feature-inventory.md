@@ -57,7 +57,7 @@ This is the spec of record for reaching STTM parity. Build order is the mileston
 | N13 | **Daily Hukamnama** | daily-hukamnama.js | ⏭️ | Fetches api.banidb.com. Network - defer or make an explicit-fetch button (like model download). |
 | N14 | **Random Shabad** | OtherPane.jsx:108 | ⬜ | Local, cheap - pick a random shabad. |
 | N15 | **Multi-pane (3 independent panes)** | Navigator.jsx:45 | ⬜ | Big. Each pane own shabad/home/lock/content. Tied to Multi-Pane workspace. |
-| N16 | Flower-verse (id 61) skip in nav/scroll | index.js:13 | ⬜ | Asa di Vaar decorative separators. Small correctness item. |
+| N16 | Flower-verse (id 61) skip in nav/scroll | index.js:13 | ⏭️ N/A | Investigated 2026-07-26: our corpus has **no** decorative/separator lines (0 comma verses, min line length 4). STTM's own evergreen-v2 realm also has 0 comma verses, and its `FLOWER_VERSE_ID = 61` is actually Japji pauri 8 (ਸੁਣਿਐ ਸਿਧ ਪੀਰ...) - the skip is vestigial. Nothing in our nav can land on a flower line; no code needed. |
 | N17 | Minimize controller (single-display) | singleDisplayHeader.jsx:51 | ⬜ | Part of workspaces. |
 
 ## 3. DISPLAY, THEMES & BACKGROUNDS
