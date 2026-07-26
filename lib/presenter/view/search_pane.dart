@@ -21,7 +21,11 @@ String _hintFor(SearchMode mode, {required bool english}) => switch (mode) {
 /// STTM's mental model: language radio x Full Word(s) / Anywhere checkboxes,
 /// with Ang driven by its own box.
 class SearchPane extends StatefulWidget {
-  const SearchPane({super.key});
+  const SearchPane({this.focusNode, super.key});
+
+  /// The query field's focus node, shared with PresenterKeyboard's Ctrl+/ so a
+  /// keystroke from anywhere focuses search. Null in tests = its own node.
+  final FocusNode? focusNode;
 
   @override
   State<SearchPane> createState() => _SearchPaneState();
@@ -238,6 +242,7 @@ class _SearchPaneState extends State<SearchPane> {
                 child: TextField(
                   key: const Key('search_field'),
                   controller: _query,
+                  focusNode: widget.focusNode,
                   autofocus: true,
                   onChanged: _onQueryChanged,
                   // STTM: Enter opens the first result; the nav focus then

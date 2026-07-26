@@ -182,6 +182,103 @@ void main() {
     );
   });
 
+  testWidgets('Ctrl+digit opens quick-insert slides', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = Preferences(await SharedPreferences.getInstance());
+    final db = openTestCorpus();
+    addTearDown(db.dispose);
+    final cubit = PresenterCubit(db, prefs);
+    addTearDown(cubit.close);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BlocProvider.value(
+          value: cubit,
+          child: const PresenterKeyboard(child: SizedBox.expand()),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    Future<void> chord(LogicalKeyboardKey k) async {
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await tester.sendKeyEvent(k);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      await tester.pump();
+    }
+
+    await chord(LogicalKeyboardKey.digit1);
+    expect(cubit.state.line?.gurmukhi, 'ਵਾਹਿਗੁਰੂ', reason: 'Ctrl+1 = Waheguru');
+    await chord(LogicalKeyboardKey.digit3);
+    expect(cubit.state.line?.gurmukhi, '', reason: 'Ctrl+3 = Blank');
+  });
+
+  testWidgets('Ctrl+slash requests focus on the search field', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = Preferences(await SharedPreferences.getInstance());
+    final db = openTestCorpus();
+    addTearDown(db.dispose);
+    final cubit = PresenterCubit(db, prefs);
+    addTearDown(cubit.close);
+
+    var focusRequested = false;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BlocProvider.value(
+          value: cubit,
+          child: PresenterKeyboard(
+            onFocusSearch: () => focusRequested = true,
+            child: const SizedBox.expand(),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.slash);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await tester.pump();
+
+    expect(focusRequested, isTrue);
+  });
+
+  testWidgets('Ctrl+digit chords fire even while the search box is focused', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = Preferences(await SharedPreferences.getInstance());
+    final db = openTestCorpus();
+    addTearDown(db.dispose);
+    final cubit = PresenterCubit(db, prefs)..search('ssnh');
+    cubit.selectResult(cubit.state.results.first);
+    addTearDown(cubit.close);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BlocProvider.value(
+          value: cubit,
+          child: const PresenterKeyboard(
+            child: Material(child: TextField(key: Key('query'))),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.byKey(const Key('query')));
+    await tester.pump();
+
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.digit1);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await tester.pump();
+
+    expect(
+      cubit.state.line?.gurmukhi,
+      'ਵਾਹਿਗੁਰੂ',
+      reason: 'a quick-insert chord bypasses the typing guard, like STTM',
+    );
+  });
+
   testWidgets('typing in a text field keeps its spaces and arrows', (
     tester,
   ) async {

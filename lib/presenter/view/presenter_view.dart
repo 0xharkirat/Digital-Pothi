@@ -70,8 +70,23 @@ void _pushOverlay(BuildContext context, PresenterState s) {
 /// the AI tracker to the presenter, so a line the tracker finds flows into the
 /// same display the operator drives by hand. [PresenterKeyboard] adds arrow /
 /// space / page / home / end / esc control over the shown line.
-class PresenterView extends StatelessWidget {
+class PresenterView extends StatefulWidget {
   const PresenterView({super.key});
+
+  @override
+  State<PresenterView> createState() => _PresenterViewState();
+}
+
+class _PresenterViewState extends State<PresenterView> {
+  // Shared with the search field (SearchPane) and PresenterKeyboard's Ctrl+/
+  // shortcut, so a keystroke from anywhere can focus the query box.
+  final _searchFocus = FocusNode(debugLabel: 'searchField');
+
+  @override
+  void dispose() {
+    _searchFocus.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +122,7 @@ class PresenterView extends StatelessWidget {
         ),
       ],
       child: PresenterKeyboard(
+        onFocusSearch: _searchFocus.requestFocus,
         child: Scaffold(
           drawer: const BaniDrawer(),
           // No AppBar: a 40px icon rail (STTM's header rail) carries the two
@@ -123,7 +139,11 @@ class PresenterView extends StatelessWidget {
                     // card feed.
                     final left = Column(
                       children: [
-                        Expanded(child: _Pane(child: const SearchPane())),
+                        Expanded(
+                          child: _Pane(
+                            child: SearchPane(focusNode: _searchFocus),
+                          ),
+                        ),
                         const Divider(height: 1, thickness: 1),
                         Expanded(
                           child: _Pane(
@@ -167,7 +187,9 @@ class PresenterView extends StatelessWidget {
                           ),
                           SizedBox(
                             height: 360,
-                            child: _Pane(child: const SearchPane()),
+                            child: _Pane(
+                              child: SearchPane(focusNode: _searchFocus),
+                            ),
                           ),
                           SizedBox(
                             height: 300,

@@ -33,7 +33,7 @@ This is the spec of record for reaching STTM parity. Build order is the mileston
 | S19 | **Transliteration line under result (English mode)** | SearchResults.jsx:156 | ⬜ | anvaad.translit under each hit when language=en. |
 | S20 | Source colour-coded result bars + legend + count | SearchResults.jsx:26, SearchFooter.jsx | ✅ | |
 | S21 | Enter opens first result | Launchpad.jsx:137 | ✅ | |
-| S22 | **Ctrl+/ focus search** | Launchpad.jsx:101 | ⬜ | Hotkey to focus the box. |
+| S22 | **Ctrl+/ focus search** | Launchpad.jsx:101 | ✅ | Ctrl+/ focuses the query field (shared FocusNode). |
 | S23 | 50ms debounce + load-more pagination (20/page) | SearchContent.jsx:95-209 | 🟡 | We cap at 40, no infinite scroll. |
 | S24 | DB-download progress bar / disabled-until-ready | SearchContent.jsx:518 | n/a | We bundle the DB; no runtime download yet (D2). |
 | S25 | **Voice search (record → remote transcribe)** | SearchContent.jsx:344 | ⏭️ | REPLACED by on-device AI auto-follow (the whole point). Keep replaced. |
@@ -152,7 +152,7 @@ This is the spec of record for reaching STTM parity. Build order is the mileston
 | A6 | History (dedup, resume, sort, delete item) | HistoryPane.jsx | 🟡 | We dedup + resume + clear-all; no per-item delete or sort order. |
 | A7 | Clear history | MiscFooter.jsx:65 | ✅ | |
 | A8 | Favourites (local star) | favoritePane.jsx | 🟡 | Ours local; STTM cloud. Named collections not done (A14). |
-| A9 | **Keyboard: Ctrl+1..6 (quick inserts + windows)** | Launchpad.jsx:165 | 🟡 | We have arrows/space/pgup-dn/home/end/esc; not Ctrl+1..6, Ctrl+/, Ctrl+C, Ctrl+G. |
+| A9 | **Keyboard: Ctrl+1..6 (quick inserts + windows)** | Launchpad.jsx:165 | 🟡 | ✅ Ctrl+1 Waheguru / Ctrl+2 Mool Mantar / Ctrl+3 Blank / Ctrl+4 Anand Bhog, Ctrl+/ focus search, Ctrl+C copy. Ctrl+5 (Help) / Ctrl+6 (Shortcut Legend) blocked on A11 windows; Ctrl+G on Dhan Guru slide (B14). |
 | A10 | Arrows/space/enter shortcuts | Launchpad.jsx | ✅ | |
 | A11 | **Shortcut legend / Help window** | controller.js:199 | ⬜ | Reference windows. |
 | A12 | **Changelog window + "what's new" notifications** | app.js:134 | ⏭️ | Analytics/notifications - dropped by design. A plain in-app changelog is optional. |
