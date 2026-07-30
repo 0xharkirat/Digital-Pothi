@@ -174,6 +174,47 @@ void main() {
     expect(styles['ਵਾਰ']?.fontWeight, isNot(FontWeight.w800));
   });
 
+  testWidgets('matra row shows only in full-word Gurmukhi', (tester) async {
+    await pumpPane(tester);
+    await tester.tap(find.byKey(const Key('kb_toggle')));
+    await tester.pump();
+    final kb = find.byKey(const Key('gurmukhi_keyboard'));
+    // ਆ is a matra-row key (the base page has ਅ, not ਆ) - absent by default.
+    expect(find.descendant(of: kb, matching: find.text('ਆ')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('match_full')));
+    await tester.pump();
+    expect(find.descendant(of: kb, matching: find.text('ਆ')), findsOneWidget);
+  });
+
+  testWidgets('matra key: independent at word start, dependent after a letter', (
+    tester,
+  ) async {
+    await pumpPane(tester);
+    await tester.tap(find.byKey(const Key('match_full')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('kb_toggle')));
+    await tester.pump();
+
+    final kb = find.byKey(const Key('gurmukhi_keyboard'));
+    String field() => tester
+        .widget<TextField>(find.byKey(const Key('search_field')))
+        .controller!
+        .text;
+    Future<void> tapKey(String label) async {
+      await tester.tap(find.descendant(of: kb, matching: find.text(label)));
+      await tester.pump();
+    }
+
+    // ਇ at a word start inserts the standalone vowel.
+    await tapKey('ਇ');
+    expect(field(), 'ਇ');
+    // A consonant, then ਇ again inserts the dependent sihari (combines in Unicode).
+    await tapKey('ਸ');
+    await tapKey('ਇ');
+    expect(field(), 'ਇਸਿ');
+  });
+
   testWidgets('footer legend shows the sources present and the count', (
     tester,
   ) async {

@@ -134,6 +134,16 @@ class _SearchPaneState extends State<SearchPane> {
     _onQueryChanged(text);
   }
 
+  /// A vowel-matra key (STTM's withMatra page). At a word start the standalone
+  /// vowel goes in; after a letter the dependent sign, which Unicode combines
+  /// with the preceding consonant - so no manual akhar-combine like STTM needs.
+  void _insertMatra(String independent, String dependent) {
+    final v = _query.value;
+    final at = v.selection.isValid ? v.selection.start : v.text.length;
+    final before = at > 0 ? v.text[at - 1] : '';
+    _insert(before.isEmpty || before == ' ' ? independent : dependent);
+  }
+
   void _backspace() {
     final v = _query.value;
     final sel = v.selection.isValid
@@ -320,7 +330,13 @@ class _SearchPaneState extends State<SearchPane> {
           ),
           if (_keyboardOpen && !_english) ...[
             const SizedBox(height: 4),
-            _GurmukhiKeyboard(onKey: _insert, onBackspace: _backspace),
+            _GurmukhiKeyboard(
+              onKey: _insert,
+              onBackspace: _backspace,
+              // Full-word Gurmukhi needs vowels, so it gets STTM's matra row;
+              // first-letter search only ever types opening consonants.
+              onMatra: _match == _Match.fullWord ? _insertMatra : null,
+            ),
           ],
           const SizedBox(height: 4),
           // Weightless text filters, right-aligned like STTM's "Filter by".
@@ -562,16 +578,39 @@ class _TextFilter extends StatelessWidget {
 /// search only needs the base letters; the matra page can come with full-word
 /// needs.
 class _GurmukhiKeyboard extends StatelessWidget {
-  const _GurmukhiKeyboard({required this.onKey, required this.onBackspace});
+  const _GurmukhiKeyboard({
+    required this.onKey,
+    required this.onBackspace,
+    this.onMatra,
+  });
 
   final ValueChanged<String> onKey;
   final VoidCallback onBackspace;
+
+  /// When set, STTM's withMatra row is shown (full-word Gurmukhi). Each key
+  /// hands back (independent vowel, dependent sign) for the caret to resolve.
+  final void Function(String independent, String dependent)? onMatra;
 
   static const _rows = [
     ['ੳ', 'ਅ', 'ੲ', 'ਸ', 'ਹ', 'ਕ', 'ਖ', 'ਗ', 'ਘ', 'ਙ'],
     ['ਚ', 'ਛ', 'ਜ', 'ਝ', 'ਞ', 'ਟ', 'ਠ', 'ਡ', 'ਢ', 'ਣ'],
     ['ਤ', 'ਥ', 'ਦ', 'ਧ', 'ਨ', 'ਪ', 'ਫ', 'ਬ', 'ਭ', 'ਮ'],
     ['ਯ', 'ਰ', 'ਲ', 'ਵ', 'ੜ'],
+  ];
+
+  // STTM's withMatra top row, in Unicode: (key label, independent, dependent).
+  // The dotted circle carries the bindi so it reads on its own.
+  static const _matras = [
+    ('ਆ', 'ਆ', 'ਾ'),
+    ('ਇ', 'ਇ', 'ਿ'),
+    ('ਈ', 'ਈ', 'ੀ'),
+    ('ਉ', 'ਉ', 'ੁ'),
+    ('ਊ', 'ਊ', 'ੂ'),
+    ('ਏ', 'ਏ', 'ੇ'),
+    ('ਐ', 'ਐ', 'ੈ'),
+    ('ਓ', 'ਓ', 'ੋ'),
+    ('ਔ', 'ਔ', 'ੌ'),
+    ('◌ਂ', 'ਂ', 'ਂ'),
   ];
 
   @override
@@ -598,7 +637,7 @@ class _GurmukhiKeyboard extends StatelessWidget {
       ),
     );
 
-    Widget letter(String ch) => key_(
+    Widget glyph(String ch, VoidCallback tap) => key_(
       Text(
         ch,
         style: TextStyle(
@@ -607,8 +646,9 @@ class _GurmukhiKeyboard extends StatelessWidget {
           color: theme.colorScheme.onSurface,
         ),
       ),
-      () => onKey(ch),
+      tap,
     );
+    Widget letter(String ch) => glyph(ch, () => onKey(ch));
 
     // STTM's keyboard sits on its own backdrop with an outer border, so it
     // reads as a surface, not letters floating on the pane.
@@ -622,6 +662,14 @@ class _GurmukhiKeyboard extends StatelessWidget {
       ),
       child: Column(
         children: [
+          // STTM's withMatra top row (vowels), full-word Gurmukhi only.
+          if (onMatra != null)
+            Row(
+              children: [
+                for (final (label, indep, dep) in _matras)
+                  glyph(label, () => onMatra!(indep, dep)),
+              ],
+            ),
           for (final row in _rows)
             Row(
               children: [
