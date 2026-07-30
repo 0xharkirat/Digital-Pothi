@@ -68,6 +68,8 @@ class SearchResult {
     required this.page,
     required this.author,
     required this.section,
+    this.firstLetters = '',
+    this.firstLettersUni = '',
     this.translation = '',
     this.sourceId = 0,
   });
@@ -80,6 +82,8 @@ class SearchResult {
   final int page;
   final String author; // writer, e.g. "Guru Nanak Dev Ji"
   final String section; // raag / bani division, e.g. "Raag Tukhaari"
+  final String firstLetters; // per-word first letters (GurbaniAkhar font codes)
+  final String firstLettersUni; // per-word first letters (Unicode Gurmukhi)
   final String translation; // English, searchEnglish results only
   final int sourceId; // corpus `sources` id - drives the result accent colour
 }
@@ -421,6 +425,7 @@ class GurbaniDatabase {
   static const _searchSelect =
       'SELECT l.id, l.shabad_id AS sid, l.order_id AS ord, l.gurmukhi_uni AS g, '
       'l.source_page AS page, sh.source_id AS src, w.name_english AS author, '
+      'l.first_letters AS fl, l.first_letters_uni AS flu, '
       "sec.name_english AS section, COALESCE(tl.text, '') AS translit";
   static const _searchJoins =
       ' FROM lines l '
@@ -653,6 +658,8 @@ class GurbaniDatabase {
         page: (r['page'] as int?) ?? 0,
         author: (r['author'] as String?) ?? '',
         section: (r['section'] as String?) ?? '',
+        firstLetters: (r['fl'] as String?) ?? '',
+        firstLettersUni: (r['flu'] as String?) ?? '',
         translation: withTranslation ? (r['translation'] as String?) ?? '' : '',
         sourceId: (r['src'] as int?) ?? 0,
       ),

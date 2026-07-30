@@ -29,7 +29,7 @@ This is the spec of record for reaching STTM parity. Build order is the mileston
 | S15 | On-screen Gurmukhi keyboard - base page | GurmukhiKeyboard.jsx | ✅ | |
 | S16 | **Keyboard matra page (full-word)** | constants.js:1-14 | ⬜ | 5-row withMatra layout + matra-combine logic, shown only in Full-Word Gurmukhi. |
 | S17 | Keyboard toggle (Gurmukhi only) | SearchContent.jsx:513 | ✅ | |
-| S18 | **Search-term highlighting in results** | SearchResults.jsx:89-141 | ⬜ | Highlights matched words/first-letters per type. |
+| S18 | **Search-term highlighting in results** | SearchResults.jsx:89-141 | ✅ | Matched words full+heavy (w800), rest dim (0.5). Weight+luminance (no hue) = colour-blind-safe. Per-type match logic in search_highlight.dart, guarded so first-letter never emphasises the wrong word. |
 | S19 | **Transliteration line under result (English mode)** | SearchResults.jsx:156 | ✅ | Roman (bundled) shown muted under the Gurmukhi in English search; already LEFT-JOINed into every result. |
 | S20 | Source colour-coded result bars + legend + count | SearchResults.jsx:26, SearchFooter.jsx | ✅ | |
 | S21 | Enter opens first result | Launchpad.jsx:137 | ✅ | |

@@ -147,6 +147,33 @@ void main() {
     expect(find.text('sochai soch na hovee'), findsNothing);
   });
 
+  testWidgets('matched words are emphasised, the rest dim', (tester) async {
+    await pumpPane(tester);
+    await tester.enterText(find.byKey(const Key('search_field')), 'ss');
+    await tester.pump();
+
+    // The result RichText carries the Ang + per-word Gurmukhi spans.
+    final rich = tester
+        .widgetList<RichText>(find.byType(RichText))
+        .firstWhere((r) => (r.text as TextSpan).toPlainText().contains('ਸੋਚੈ'));
+    final styles = <String, TextStyle?>{};
+    (rich.text as TextSpan).visitChildren((span) {
+      if (span is TextSpan &&
+          span.text != null &&
+          span.text!.trim().isNotEmpty) {
+        styles[span.text!] = span.style;
+      }
+      return true;
+    });
+
+    // 'ss' matches the first two words - heavy weight, full colour.
+    expect(styles['ਸੋਚੈ']?.fontWeight, FontWeight.w800);
+    expect(styles['ਸੋਚੈ']?.color?.a, 1.0);
+    // A later unmatched word recedes (~0.5 alpha), regular weight.
+    expect(styles['ਵਾਰ']?.color?.a, closeTo(0.5, 0.02));
+    expect(styles['ਵਾਰ']?.fontWeight, isNot(FontWeight.w800));
+  });
+
   testWidgets('footer legend shows the sources present and the count', (
     tester,
   ) async {

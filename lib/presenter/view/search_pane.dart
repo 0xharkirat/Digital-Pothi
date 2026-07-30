@@ -6,6 +6,7 @@ import '../../data/gurbani_database.dart';
 import '../../theme/app_theme.dart';
 import '../cubit/presenter_cubit.dart';
 import '../gurmukhi_text.dart';
+import '../search_highlight.dart';
 
 String _hintFor(SearchMode mode, {required bool english}) => switch (mode) {
   SearchMode.fullWordEnglish => 'Search English translations',
@@ -377,6 +378,8 @@ class _SearchPaneState extends State<SearchPane> {
                     itemCount: state.results.length,
                     itemBuilder: (context, i) => _ResultTile(
                       result: state.results[i],
+                      query: state.query,
+                      mode: state.mode,
                       showTransliteration: _english,
                       onTap: () => cubit.selectResult(state.results[i]),
                     ),
@@ -655,10 +658,17 @@ class _ResultTile extends StatelessWidget {
   const _ResultTile({
     required this.result,
     required this.onTap,
+    this.query = '',
+    this.mode = SearchMode.firstLetterAnywhere,
     this.showTransliteration = false,
   });
   final SearchResult result;
   final VoidCallback onTap;
+
+  /// The live query and mode, so matched words can be emphasised (STTM's
+  /// search-term highlighting). Empty query = nothing highlighted.
+  final String query;
+  final SearchMode mode;
 
   /// STTM's eng-verse: a roman reading aid under the Gurmukhi, shown in English
   /// search where the operator may not read Gurmukhi fluently.
@@ -668,6 +678,26 @@ class _ResultTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final g = context.gurbani;
     final theme = Theme.of(context);
+    // Per-word highlight: matched words stay full-strength + heavy, the rest
+    // dim + regular. Two non-hue signals (weight + luminance) so the emphasis
+    // survives colour-blindness, and the match reads by subtraction. When no
+    // word matches (empty query, English/Ang), every word renders normally.
+    final gWords = strippedGurmukhi(result.gurmukhi).split(' ');
+    final matched = matchedWordIndices(
+      words: gWords,
+      firstLetters: result.firstLetters,
+      firstLettersUni: result.firstLettersUni,
+      query: query,
+      mode: mode,
+    );
+    final gStyle = g.gurmukhi.copyWith(height: 1.5);
+    final hitStyle = gStyle.copyWith(fontWeight: FontWeight.w800);
+    // Weight (w400 -> w800) is the primary, colour-blind-safe signal, so the
+    // dim can stay gentle - half strength keeps the unmatched context readable
+    // (large text clears the 3:1 floor) while it clearly recedes.
+    final dimStyle = gStyle.copyWith(
+      color: gStyle.color?.withValues(alpha: 0.5),
+    );
     // Ink, not Container: an opaque Container hides the InkWell's hover.
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
@@ -700,10 +730,15 @@ class _ResultTile extends StatelessWidget {
                         fontSize: 13,
                       ),
                     ),
-                    TextSpan(
-                      text: strippedGurmukhi(result.gurmukhi),
-                      style: g.gurmukhi.copyWith(height: 1.5),
-                    ),
+                    for (var i = 0; i < gWords.length; i++) ...[
+                      if (i > 0) const TextSpan(text: ' '),
+                      TextSpan(
+                        text: gWords[i],
+                        style: matched.isEmpty
+                            ? gStyle
+                            : (matched.contains(i) ? hitStyle : dimStyle),
+                      ),
+                    ],
                   ],
                 ),
               ),
