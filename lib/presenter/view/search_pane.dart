@@ -377,6 +377,7 @@ class _SearchPaneState extends State<SearchPane> {
                     itemCount: state.results.length,
                     itemBuilder: (context, i) => _ResultTile(
                       result: state.results[i],
+                      showTransliteration: _english,
                       onTap: () => cubit.selectResult(state.results[i]),
                     ),
                   ),
@@ -651,9 +652,17 @@ class _GurmukhiKeyboard extends StatelessWidget {
 }
 
 class _ResultTile extends StatelessWidget {
-  const _ResultTile({required this.result, required this.onTap});
+  const _ResultTile({
+    required this.result,
+    required this.onTap,
+    this.showTransliteration = false,
+  });
   final SearchResult result;
   final VoidCallback onTap;
+
+  /// STTM's eng-verse: a roman reading aid under the Gurmukhi, shown in English
+  /// search where the operator may not read Gurmukhi fluently.
+  final bool showTransliteration;
 
   @override
   Widget build(BuildContext context) {
@@ -698,6 +707,19 @@ class _ResultTile extends StatelessWidget {
                   ],
                 ),
               ),
+              // Roman reading aid, tucked under the verse it romanises. Muted
+              // so the Gurmukhi stays primary (hierarchy is subtraction).
+              if (showTransliteration && result.transliteration.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text(
+                  result.transliteration,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
               // Why an English hit matched - populated by English search only.
               if (result.translation.isNotEmpty) ...[
                 const SizedBox(height: 2),

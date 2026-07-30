@@ -131,6 +131,20 @@ void main() {
     await tester.enterText(find.byKey(const Key('search_field')), 'thinking');
     await tester.pump();
     expect(find.textContaining('By thinking'), findsOneWidget);
+    // STTM's eng-verse: the roman transliteration under the hit, English only.
+    expect(find.text('sochai soch na hovee'), findsOneWidget);
+  });
+
+  testWidgets('Gurmukhi mode does not show the transliteration line', (
+    tester,
+  ) async {
+    await pumpPane(tester);
+    await tester.enterText(find.byKey(const Key('search_field')), 'ssnh');
+    await tester.pump();
+    // The line matches (result rendered), but the roman line is an English-mode
+    // reading aid, so it stays hidden here.
+    expect(cubit.state.results, isNotEmpty);
+    expect(find.text('sochai soch na hovee'), findsNothing);
   });
 
   testWidgets('footer legend shows the sources present and the count', (

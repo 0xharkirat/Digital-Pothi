@@ -30,7 +30,7 @@ This is the spec of record for reaching STTM parity. Build order is the mileston
 | S16 | **Keyboard matra page (full-word)** | constants.js:1-14 | ⬜ | 5-row withMatra layout + matra-combine logic, shown only in Full-Word Gurmukhi. |
 | S17 | Keyboard toggle (Gurmukhi only) | SearchContent.jsx:513 | ✅ | |
 | S18 | **Search-term highlighting in results** | SearchResults.jsx:89-141 | ⬜ | Highlights matched words/first-letters per type. |
-| S19 | **Transliteration line under result (English mode)** | SearchResults.jsx:156 | ⬜ | anvaad.translit under each hit when language=en. |
+| S19 | **Transliteration line under result (English mode)** | SearchResults.jsx:156 | ✅ | Roman (bundled) shown muted under the Gurmukhi in English search; already LEFT-JOINed into every result. |
 | S20 | Source colour-coded result bars + legend + count | SearchResults.jsx:26, SearchFooter.jsx | ✅ | |
 | S21 | Enter opens first result | Launchpad.jsx:137 | ✅ | |
 | S22 | **Ctrl+/ focus search** | Launchpad.jsx:101 | ✅ | Ctrl+/ focuses the query field (shared FocusNode). |
