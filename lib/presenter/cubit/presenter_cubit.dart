@@ -16,6 +16,7 @@ const _kVishraam = 'vishraam';
 const _kFontScale = 'fontScale';
 const _kDisplayBg = 'displayBg';
 const _kHistory = 'history';
+const _kHistoryNewestFirst = 'historyNewestFirst';
 const _kFavorites = 'favorites';
 const _kIntelligentSpacebar = 'intelligentSpacebar';
 const _kLeftAlign = 'leftAlign';
@@ -65,6 +66,7 @@ class PresenterCubit extends Cubit<PresenterState> {
     teekaScale: p.getDouble(_kTeekaScale) ?? 1.0,
     translitScale: p.getDouble(_kTranslitScale) ?? 1.0,
     announcementScale: p.getDouble(_kAnnouncementScale) ?? 1.0,
+    historyNewestFirst: p.getBool(_kHistoryNewestFirst) ?? true,
   );
 
   static List<HistoryEntry> _decodeEntries(String? json) {
@@ -376,6 +378,23 @@ class PresenterCubit extends Cubit<PresenterState> {
   void clearHistory() {
     _save(_kHistory, const []);
     emit(state.copyWith(history: const []));
+  }
+
+  /// Drop one history entry (STTM's per-item delete), keeping the rest.
+  void deleteHistoryEntry(HistoryEntry entry) {
+    final history = state.history
+        .where((e) => e.lineId != entry.lineId)
+        .toList();
+    _save(_kHistory, history);
+    emit(state.copyWith(history: history));
+  }
+
+  /// Flip the history view order (STTM's historyOrder). Storage stays
+  /// newest-first; only the display reverses.
+  void toggleHistoryOrder() {
+    final newest = !state.historyNewestFirst;
+    _prefs.setBool(_kHistoryNewestFirst, value: newest);
+    emit(state.copyWith(historyNewestFirst: newest));
   }
 
   /// Star / unstar the current shabad line (STTM's Favorites). Only real corpus

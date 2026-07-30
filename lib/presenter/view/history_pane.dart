@@ -28,9 +28,14 @@ class _HistoryPaneState extends State<HistoryPane> {
       children: [
         Expanded(
           child:
-              BlocSelector<PresenterCubit, PresenterState, List<HistoryEntry>>(
-                selector: (s) => s.history,
-                builder: (context, history) {
+              BlocSelector<
+                PresenterCubit,
+                PresenterState,
+                (List<HistoryEntry>, bool)
+              >(
+                selector: (s) => (s.history, s.historyNewestFirst),
+                builder: (context, data) {
+                  final (history, newestFirst) = data;
                   if (history.isEmpty) {
                     return Center(
                       child: Text(
@@ -41,12 +46,17 @@ class _HistoryPaneState extends State<HistoryPane> {
                       ),
                     );
                   }
+                  // Storage is newest-first; oldest-first just reverses the view.
+                  final ordered = newestFirst
+                      ? history
+                      : history.reversed.toList();
                   return ListView.builder(
                     padding: const EdgeInsets.only(top: 4),
-                    itemCount: history.length,
+                    itemCount: ordered.length,
                     itemBuilder: (context, i) => _HistoryTile(
-                      entry: history[i],
-                      onTap: () => cubit.openHistory(history[i]),
+                      entry: ordered[i],
+                      onTap: () => cubit.openHistory(ordered[i]),
+                      onDelete: () => cubit.deleteHistoryEntry(ordered[i]),
                     ),
                   );
                 },
@@ -80,11 +90,29 @@ class _HistoryPaneState extends State<HistoryPane> {
                 ),
               ),
             ),
-            // STTM's Clear History, on the same strip.
-            BlocSelector<PresenterCubit, PresenterState, bool>(
-              selector: (s) => s.history.isNotEmpty,
-              builder: (context, hasHistory) => hasHistory
-                  ? TextButton.icon(
+            // STTM's history controls, on the same strip: order toggle + Clear.
+            BlocSelector<PresenterCubit, PresenterState, (bool, bool)>(
+              selector: (s) => (s.history.isNotEmpty, s.historyNewestFirst),
+              builder: (context, data) {
+                final (hasHistory, newestFirst) = data;
+                if (!hasHistory) return const SizedBox.shrink();
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: cubit.toggleHistoryOrder,
+                      icon: const Icon(Icons.swap_vert, size: 16),
+                      visualDensity: VisualDensity.compact,
+                      constraints: const BoxConstraints.tightFor(
+                        width: 30,
+                        height: 30,
+                      ),
+                      color: theme.colorScheme.onSurfaceVariant,
+                      tooltip: newestFirst
+                          ? 'Newest first (tap for oldest)'
+                          : 'Oldest first (tap for newest)',
+                    ),
+                    TextButton.icon(
                       onPressed: cubit.clearHistory,
                       icon: const Icon(Icons.delete_sweep, size: 14),
                       label: const Text('Clear history'),
@@ -93,8 +121,10 @@ class _HistoryPaneState extends State<HistoryPane> {
                         foregroundColor: theme.colorScheme.onSurfaceVariant,
                         textStyle: const TextStyle(fontSize: 12),
                       ),
-                    )
-                  : const SizedBox.shrink(),
+                    ),
+                  ],
+                );
+              },
             ),
           ],
         ),
@@ -171,9 +201,14 @@ class _HistoryPaneState extends State<HistoryPane> {
 }
 
 class _HistoryTile extends StatelessWidget {
-  const _HistoryTile({required this.entry, required this.onTap});
+  const _HistoryTile({
+    required this.entry,
+    required this.onTap,
+    required this.onDelete,
+  });
   final HistoryEntry entry;
   final VoidCallback onTap;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -201,26 +236,46 @@ class _HistoryTile extends StatelessWidget {
               bottomRight: Radius.circular(6),
             ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Text(
-                strippedGurmukhi(entry.gurmukhi),
-                // List-size Gurmukhi: the display pane owns the big type.
-                style: g.gurmukhi.copyWith(fontSize: 18, height: 1.4),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (meta.isNotEmpty) ...[
-                const SizedBox(height: 2),
-                Text(
-                  meta,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontSize: 11,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      strippedGurmukhi(entry.gurmukhi),
+                      // List-size Gurmukhi: the display pane owns the big type.
+                      style: g.gurmukhi.copyWith(fontSize: 18, height: 1.4),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (meta.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        meta,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontSize: 11,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-              ],
+              ),
+              // Per-item delete (STTM). Muted until hovered - the IconButton's
+              // own hover confirms it - and its tap never opens the shabad.
+              IconButton(
+                onPressed: onDelete,
+                icon: const Icon(Icons.close, size: 15),
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints.tightFor(
+                  width: 28,
+                  height: 28,
+                ),
+                color: theme.colorScheme.onSurfaceVariant,
+                tooltip: 'Remove from history',
+              ),
             ],
           ),
         ),

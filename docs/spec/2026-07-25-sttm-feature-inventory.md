@@ -149,7 +149,7 @@ This is the spec of record for reaching STTM parity. Build order is the mileston
 | A3 | **Quick Tools panel** | QuickTools.jsx | 🟡 | See D22. |
 | A4 | **Padding Tools panel** | PaddingTools.jsx | ⬜ | See D21. |
 | A5 | Shortcut tray / Quick Insert drawer | MiscFooter.jsx | ✅ | Ours = Quick Insert row. |
-| A6 | History (dedup, resume, sort, delete item) | HistoryPane.jsx | 🟡 | We dedup + resume + clear-all; no per-item delete or sort order. |
+| A6 | History (dedup, resume, sort, delete item) | HistoryPane.jsx | ✅ | Dedup + resume + clear-all + per-item delete (close icon, doesn't open) + newest/oldest order toggle (display-only, persisted). |
 | A7 | Clear history | MiscFooter.jsx:65 | ✅ | |
 | A8 | Favourites (local star) | favoritePane.jsx | 🟡 | Ours local; STTM cloud. Named collections not done (A14). |
 | A9 | **Keyboard: Ctrl+1..6 (quick inserts + windows)** | Launchpad.jsx:165 | 🟡 | ✅ Ctrl+1 Waheguru / Ctrl+2 Mool Mantar / Ctrl+3 Blank / Ctrl+4 Anand Bhog, Ctrl+/ focus search, Ctrl+C copy. Ctrl+5 (Help) / Ctrl+6 (Shortcut Legend) blocked on A11 windows; Ctrl+G on Dhan Guru slide (B14). |

@@ -67,6 +67,7 @@ class PresenterState extends Equatable {
     this.teekaScale = 1.0,
     this.translitScale = 1.0,
     this.announcementScale = 1.0,
+    this.historyNewestFirst = true,
   });
 
   final String query;
@@ -115,6 +116,11 @@ class PresenterState extends Equatable {
 
   /// Recently shown lines, most recent first. Persisted across launches.
   final List<HistoryEntry> history;
+
+  /// History display order (STTM's historyOrder): newest-first by default,
+  /// oldest-first when false. Storage stays newest-first; this only flips the
+  /// view. Persisted.
+  final bool historyNewestFirst;
 
   /// Saved shabads (STTM's Favorites), most recent first. Persisted, local.
   final List<HistoryEntry> favorites;
@@ -228,6 +234,7 @@ class PresenterState extends Equatable {
     double? teekaScale,
     double? translitScale,
     double? announcementScale,
+    bool? historyNewestFirst,
   }) => PresenterState(
     query: query ?? this.query,
     mode: mode ?? this.mode,
@@ -259,6 +266,7 @@ class PresenterState extends Equatable {
     teekaScale: teekaScale ?? this.teekaScale,
     translitScale: translitScale ?? this.translitScale,
     announcementScale: announcementScale ?? this.announcementScale,
+    historyNewestFirst: historyNewestFirst ?? this.historyNewestFirst,
   );
 
   // `display` is derived from `current`, so it's left out - `current` already
@@ -294,5 +302,6 @@ class PresenterState extends Equatable {
     teekaScale,
     translitScale,
     announcementScale,
+    historyNewestFirst,
   ];
 }

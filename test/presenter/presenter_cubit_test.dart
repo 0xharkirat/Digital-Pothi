@@ -240,6 +240,39 @@ void main() {
       await reopened.close();
     });
 
+    test('deleteHistoryEntry drops one entry and persists the rest', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = Preferences(await SharedPreferences.getInstance());
+      final c = PresenterCubit(db, prefs)..search('ssnh');
+      c.selectResult(c.state.results.first); // 'a'
+      c
+        ..search('hsdb')
+        ..selectResult(c.state.results.first); // 'c'; history ['c','a']
+      expect(c.state.history.map((e) => e.lineId), ['c', 'a']);
+
+      c.deleteHistoryEntry(c.state.history.firstWhere((e) => e.lineId == 'a'));
+      expect(c.state.history.map((e) => e.lineId), ['c']);
+      await c.close();
+
+      final reopened = PresenterCubit(db, prefs);
+      expect(reopened.state.history.map((e) => e.lineId), ['c']);
+      await reopened.close();
+    });
+
+    test('toggleHistoryOrder flips the view order and persists', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = Preferences(await SharedPreferences.getInstance());
+      final c = PresenterCubit(db, prefs);
+      expect(c.state.historyNewestFirst, isTrue);
+      c.toggleHistoryOrder();
+      expect(c.state.historyNewestFirst, isFalse);
+      await c.close();
+
+      final reopened = PresenterCubit(db, prefs);
+      expect(reopened.state.historyNewestFirst, isFalse);
+      await reopened.close();
+    });
+
     test('openHistory re-opens a past shabad at its line', () {
       cubit
         ..search('hsdb')
