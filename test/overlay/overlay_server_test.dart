@@ -21,6 +21,26 @@ void main() {
     expect(overlayPageHtml, contains('opacity:.5'));
   });
 
+  test('vishraam colours follow the theme instead of a hardcoded palette', () {
+    // Regression: bake() used to hardcode the DARK palette (amber + cream@55%),
+    // so on the light/parchment display the pause words rendered at 1.58:1 and
+    // 1.04:1 - the medium-pause word was invisible on the projector.
+    expect(
+      overlayPageHtml,
+      isNot(contains('rgba(251,243,227,.55)')),
+      reason: 'cream@55% is the dark-theme text colour, not a constant',
+    );
+    // Heavy/medium are handed to bake() from the themed payload (ac / fg).
+    expect(
+      overlayPageHtml,
+      contains('function bake(line,larivaar,vishraam,heavy,medium)'),
+    );
+    expect(
+      overlayPageHtml,
+      contains('bake(d.g,d.lv,d.vr!==false,vrHeavy,vrMed)'),
+    );
+  });
+
   test(
     'showLine records the line as the JSON a page receives on connect',
     () async {

@@ -15,9 +15,12 @@ Graduated from fog by [T4](T4-wcag-audit.md). Findings:
 [../research/T4-wcag-audit.md](../research/T4-wcag-audit.md).
 
 Decide at least:
-- The overlay light-theme palette bug (vishraam at 1.04-1.58:1 on parchment,
-  `overlay_server.dart:182-183`) — a real defect from the light-theme work, not
-  just a ratio miss. Fix now, or fold into the batch?
+- ~~The overlay light-theme palette bug~~ **FIXED 2026-08-01.** `bake()` now takes
+  the vishraam colours from the themed payload (heavy = `ac`, medium = `fg` at
+  55%), mirroring `display_pane.dart`. Reproduced in a browser against the real
+  served page: light heavy 1.58 → 4.22:1, light medium 1.04 → 3.66:1 (the word
+  was invisible); dark renders byte-identically (8.92 / 5.38). Regression test in
+  `test/overlay/overlay_server_test.dart`.
 - Light-theme contrast: kesari doubles as text colour at 2.16-2.65:1
   (`app_theme.dart:210`). Retune the token, or add a separate on-light accent?
 - Semantics: no `Semantics` widgets exist on the custom radios/dropdowns/rows.

@@ -175,12 +175,14 @@ var SHOW=(function(){
 function allow(k){return !SHOW||SHOW.indexOf(k)>=0;}
 // Build the Gurmukhi with vishraam colouring + larivaar - mirrors gurmukhi_text.dart:
 // strip the embedded ; , . pause marks, colour the pause word when vishraam is on.
-function bake(line,larivaar,vishraam){
+// [heavy]/[medium] come from the themed payload, never a fixed palette - hardcoding
+// the dark colours made the pause words vanish on the light (parchment) display.
+function bake(line,larivaar,vishraam,heavy,medium){
   var words=line.split(/\\s+/).filter(Boolean),html='',sep=larivaar?'':' ';
   for(var i=0;i<words.length;i++){
     var w=words[i],c='';
-    if(w.slice(-1)===';'){if(vishraam)c='#F0B429';}
-    else if(w.slice(-1)===','){if(vishraam)c='rgba(251,243,227,.55)';}
+    if(w.slice(-1)===';'){if(vishraam)c=heavy;}
+    else if(w.slice(-1)===','){if(vishraam)c=medium;}
     w=w.replace(/[;,.]/g,'');
     if(!w)continue;
     var esc=w.replace(/&/g,'&amp;').replace(/</g,'&lt;');
@@ -199,15 +201,18 @@ function render(d){
   var fg=d.fg||'#FBF3E3', ac=d.ac||'#F0B429';
   g.style.color=fg; pa.style.color=fg; en.style.color=fg; en.style.opacity=.86;
   r.style.color=ac; nl.style.color=fg;
+  // Vishraam follows the theme, same formula as display_pane.dart: heavy = the
+  // accent, medium = the text colour at 55% (8C alpha on a #rrggbb hex).
+  var vrHeavy=ac, vrMed=/^#[0-9a-fA-F]{6}\$/.test(fg)?fg+'8C':fg;
   // Per-row scales (STTM's font sizes): Bani, translation, teeka, translit.
   var fs=d.fs||1, ts=d.ts||1, ks=d.ks||1, rs=d.rs||1;
   g.style.fontSize=(7*fs)+'vh'; pa.style.fontSize=(3.4*ks)+'vh';
   en.style.fontSize=(3.2*ts)+'vh'; r.style.fontSize=(2.6*rs)+'vh';
   nl.style.fontSize=(6.3*fs)+'vh';
-  g.innerHTML=(allow('gurmukhi')&&d.g)?bake(d.g,d.lv,d.vr!==false):'';
+  g.innerHTML=(allow('gurmukhi')&&d.g)?bake(d.g,d.lv,d.vr!==false,vrHeavy,vrMed):'';
   g.style.display=allow('gurmukhi')?'':'none';
   // Next-line preview (STTM Next Line): Gurbani only, dimmed, gurmukhi-gated.
-  nl.innerHTML=(allow('gurmukhi')&&d.nl)?bake(d.nl,d.lv,false):'';
+  nl.innerHTML=(allow('gurmukhi')&&d.nl)?bake(d.nl,d.lv,false,vrHeavy,vrMed):'';
   nl.style.display=(allow('gurmukhi')&&d.nl)?'':'none';
   stage.className=d.g?'':'empty';
   line(pa,'punjabi',d.pa);
