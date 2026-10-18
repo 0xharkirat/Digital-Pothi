@@ -17,6 +17,11 @@ class DisplayPane extends StatelessWidget {
     this.larivaar = false,
     this.vishraam = true,
     this.fontScale = 1.0,
+    this.leftAlign = false,
+    this.translationScale = 1.0,
+    this.teekaScale = 1.0,
+    this.translitScale = 1.0,
+    this.nextLine,
     super.key,
   });
 
@@ -28,12 +33,28 @@ class DisplayPane extends StatelessWidget {
 
   final bool larivaar;
   final bool vishraam;
-  final double fontScale;
+  final double fontScale; // Bani
+  final bool
+  leftAlign; // STTM left-align: flush the text left instead of centre
+
+  /// STTM's per-row sizes, independent of the Bani size.
+  final double translationScale;
+  final double teekaScale;
+  final double translitScale;
+
+  /// STTM's Next Line: the upcoming line's Gurmukhi, shown dimmed under the
+  /// slide. Null = don't show it (last line, or the setting is off).
+  final String? nextLine;
 
   @override
   Widget build(BuildContext context) {
     final g = context.gurbani;
+    final align = leftAlign ? TextAlign.left : TextAlign.center;
+    final cross = leftAlign
+        ? CrossAxisAlignment.start
+        : CrossAxisAlignment.center;
     final en = display.translations['en'];
+    final teeka = display.translations['pa'];
     // The roman transliteration embeds the same vishraam marks (`; , .`) as the
     // Gurmukhi, so strip them here too - only the English (real punctuation) and
     // Punjabi teeka keep theirs.
@@ -42,11 +63,13 @@ class DisplayPane extends StatelessWidget {
 
     return ColoredBox(
       color: background ?? g.displayBackground,
-      child: Center(
+      child: Align(
+        alignment: leftAlign ? Alignment.centerLeft : Alignment.center,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 56, vertical: 40),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: cross,
             children: [
               Text.rich(
                 TextSpan(
@@ -58,7 +81,7 @@ class DisplayPane extends StatelessWidget {
                     vishraam: vishraam,
                   ),
                 ),
-                textAlign: TextAlign.center,
+                textAlign: align,
                 style: TextStyle(
                   fontFamily: kGurmukhiFont,
                   fontWeight: FontWeight.w800,
@@ -67,27 +90,58 @@ class DisplayPane extends StatelessWidget {
                   color: g.displayText,
                 ),
               ),
+              // STTM's content rows, in order: translation, teeka, then
+              // transliteration - each sized by its own scale.
               if (en != null) ...[
-                SizedBox(height: 28 * fontScale),
+                const SizedBox(height: 24),
                 Text(
                   en,
-                  textAlign: TextAlign.center,
+                  textAlign: align,
                   style: TextStyle(
-                    fontSize: 22 * fontScale,
+                    fontSize: 22 * translationScale,
                     height: 1.4,
                     color: g.displayText.withValues(alpha: 0.86),
                   ),
                 ),
               ],
+              if (teeka != null && teeka.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Text(
+                  teeka,
+                  textAlign: align,
+                  style: TextStyle(
+                    fontFamily: kGurmukhiFont,
+                    fontSize: 20 * teekaScale,
+                    height: 1.5,
+                    color: g.displayText.withValues(alpha: 0.78),
+                  ),
+                ),
+              ],
               if (roman != null) ...[
-                SizedBox(height: 18 * fontScale),
+                const SizedBox(height: 16),
                 Text(
                   roman,
-                  textAlign: TextAlign.center,
+                  textAlign: align,
                   style: TextStyle(
-                    fontSize: 18 * fontScale,
+                    fontSize: 18 * translitScale,
                     height: 1.4,
                     color: g.displayAccent,
+                  ),
+                ),
+              ],
+              // STTM's Next Line: the upcoming line, Gurbani only, dimmed and
+              // slightly smaller (0.9x), under everything else.
+              if (nextLine != null && nextLine!.isNotEmpty) ...[
+                SizedBox(height: 30 * fontScale),
+                Text(
+                  strippedGurmukhi(nextLine!),
+                  textAlign: align,
+                  style: TextStyle(
+                    fontFamily: kGurmukhiFont,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 46 * fontScale * 0.9,
+                    height: 1.6,
+                    color: g.displayText.withValues(alpha: 0.5),
                   ),
                 ),
               ],

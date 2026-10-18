@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -59,12 +60,24 @@ void main() {
     );
   });
 
-  testWidgets('tapping a row home icon repaints the fill onto that row', (
+  testWidgets('hovering reveals set-home; tapping moves the fill there', (
     tester,
   ) async {
     await pumpView(tester);
-    // Re-home to the first couplet line (index 2): tap ITS outlined icon.
-    await tester.tap(find.byIcon(Icons.home_outlined).at(2));
+    // Icons hover-reveal (STTM): nothing but the filled home when idle.
+    expect(find.byIcon(Icons.home_outlined), findsNothing);
+
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await gesture.addPointer(location: Offset.zero);
+    addTearDown(gesture.removePointer);
+    await tester.pump();
+    await gesture.moveTo(
+      tester.getCenter(find.widgetWithText(InkWell, 'ਪਹਿਲੀ ਅੰਤਰਾ ਤੁਕ ਇਕ ॥')),
+    );
+    await tester.pump();
+
+    // Only the hovered row grows the affordance; re-home via it.
+    await tester.tap(find.byIcon(Icons.home_outlined));
     await tester.pump();
 
     expect(cubit.state.homeIndex, 2);
@@ -79,9 +92,21 @@ void main() {
     );
   });
 
-  testWidgets('banis show no home affordance', (tester) async {
+  testWidgets('banis show no home affordance, even under the pointer', (
+    tester,
+  ) async {
     cubit.showBani(db.banis().first);
     await pumpView(tester);
+
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await gesture.addPointer(location: Offset.zero);
+    addTearDown(gesture.removePointer);
+    await tester.pump();
+    await gesture.moveTo(
+      tester.getCenter(find.widgetWithText(InkWell, 'ਜਪੁ ਲਾਈਨ')),
+    );
+    await tester.pump();
+
     expect(find.byIcon(Icons.home), findsNothing);
     expect(find.byIcon(Icons.home_outlined), findsNothing);
   });

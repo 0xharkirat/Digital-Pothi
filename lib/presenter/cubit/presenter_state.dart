@@ -60,6 +60,14 @@ class PresenterState extends Equatable {
     this.homeIndex = -1,
     this.resumeIndex = -1,
     this.intelligentSpacebar = true,
+    this.leftAlign = false,
+    this.slideTransitions = true,
+    this.displayNextLine = false,
+    this.translationScale = 1.0,
+    this.teekaScale = 1.0,
+    this.translitScale = 1.0,
+    this.announcementScale = 1.0,
+    this.historyNewestFirst = true,
   });
 
   final String query;
@@ -94,9 +102,25 @@ class PresenterState extends Equatable {
   final bool larivaar; // run words together
   final bool vishraam; // colour the pause words
   final double fontScale; // 0.7 .. 1.5, multiplies the base sizes
+  final bool leftAlign; // STTM left-align: line + rows flush-left, not centred
+  final bool slideTransitions; // fade the projected line on change
+  final bool displayNextLine; // show the upcoming line dimmed under the current
+
+  /// STTM's per-row font sizes: each content row scales independently of the
+  /// Bani size ([fontScale]). 0.7 .. 1.5, like fontScale. Announcement scales
+  /// the quick-insert slides.
+  final double translationScale;
+  final double teekaScale;
+  final double translitScale;
+  final double announcementScale;
 
   /// Recently shown lines, most recent first. Persisted across launches.
   final List<HistoryEntry> history;
+
+  /// History display order (STTM's historyOrder): newest-first by default,
+  /// oldest-first when false. Storage stays newest-first; this only flips the
+  /// view. Persisted.
+  final bool historyNewestFirst;
 
   /// Saved shabads (STTM's Favorites), most recent first. Persisted, local.
   final List<HistoryEntry> favorites;
@@ -140,6 +164,24 @@ class PresenterState extends Equatable {
   }
 
   bool get isFavorite => favorites.any((f) => f.lineId == line?.id);
+
+  /// The next-line preview (STTM's Next Line): the next verse's Gurmukhi in the
+  /// loaded shabad, or null at the last line or on a single-line quick-insert
+  /// slide (nothing to preview). Independent of who set the current line.
+  String? get nextLinePreview {
+    final id = line?.id;
+    if (id == null || id == 'special') return null;
+    final n = current + 1;
+    return n < shabad.length ? shabad[n].gurmukhi : null;
+  }
+
+  /// The active line's Gurmukhi to copy (STTM's Ctrl+C copies the verse only),
+  /// or null when there's nothing to copy - no line or a quick-insert slide.
+  /// Bani lines copy fine; only synthetic 'special' slides are excluded.
+  String? get copyableGurmukhi {
+    final l = line;
+    return (l == null || l.id == 'special') ? null : l.gurmukhi;
+  }
 
   /// What the empty results area says: a per-mode prompt before typing, and a
   /// real "no results" once a query is in - noting active filters, so
@@ -185,6 +227,14 @@ class PresenterState extends Equatable {
     int? homeIndex,
     int? resumeIndex,
     bool? intelligentSpacebar,
+    bool? leftAlign,
+    bool? slideTransitions,
+    bool? displayNextLine,
+    double? translationScale,
+    double? teekaScale,
+    double? translitScale,
+    double? announcementScale,
+    bool? historyNewestFirst,
   }) => PresenterState(
     query: query ?? this.query,
     mode: mode ?? this.mode,
@@ -209,6 +259,14 @@ class PresenterState extends Equatable {
     homeIndex: homeIndex ?? this.homeIndex,
     resumeIndex: resumeIndex ?? this.resumeIndex,
     intelligentSpacebar: intelligentSpacebar ?? this.intelligentSpacebar,
+    leftAlign: leftAlign ?? this.leftAlign,
+    slideTransitions: slideTransitions ?? this.slideTransitions,
+    displayNextLine: displayNextLine ?? this.displayNextLine,
+    translationScale: translationScale ?? this.translationScale,
+    teekaScale: teekaScale ?? this.teekaScale,
+    translitScale: translitScale ?? this.translitScale,
+    announcementScale: announcementScale ?? this.announcementScale,
+    historyNewestFirst: historyNewestFirst ?? this.historyNewestFirst,
   );
 
   // `display` is derived from `current`, so it's left out - `current` already
@@ -237,5 +295,13 @@ class PresenterState extends Equatable {
     homeIndex,
     resumeIndex,
     intelligentSpacebar,
+    leftAlign,
+    slideTransitions,
+    displayNextLine,
+    translationScale,
+    teekaScale,
+    translitScale,
+    announcementScale,
+    historyNewestFirst,
   ];
 }

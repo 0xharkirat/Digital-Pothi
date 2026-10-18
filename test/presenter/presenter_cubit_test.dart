@@ -225,6 +225,54 @@ void main() {
       expect(cubit.state.history.first.page, 4);
     });
 
+    test('clearHistory wipes the list and the on-device store', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = Preferences(await SharedPreferences.getInstance());
+      final c = PresenterCubit(db, prefs)..search('ssnh');
+      c.selectResult(c.state.results.first);
+      expect(c.state.history, isNotEmpty);
+      c.clearHistory();
+      expect(c.state.history, isEmpty);
+      await c.close();
+
+      final reopened = PresenterCubit(db, prefs); // same store
+      expect(reopened.state.history, isEmpty, reason: 'cleared persistently');
+      await reopened.close();
+    });
+
+    test('deleteHistoryEntry drops one entry and persists the rest', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = Preferences(await SharedPreferences.getInstance());
+      final c = PresenterCubit(db, prefs)..search('ssnh');
+      c.selectResult(c.state.results.first); // 'a'
+      c
+        ..search('hsdb')
+        ..selectResult(c.state.results.first); // 'c'; history ['c','a']
+      expect(c.state.history.map((e) => e.lineId), ['c', 'a']);
+
+      c.deleteHistoryEntry(c.state.history.firstWhere((e) => e.lineId == 'a'));
+      expect(c.state.history.map((e) => e.lineId), ['c']);
+      await c.close();
+
+      final reopened = PresenterCubit(db, prefs);
+      expect(reopened.state.history.map((e) => e.lineId), ['c']);
+      await reopened.close();
+    });
+
+    test('toggleHistoryOrder flips the view order and persists', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = Preferences(await SharedPreferences.getInstance());
+      final c = PresenterCubit(db, prefs);
+      expect(c.state.historyNewestFirst, isTrue);
+      c.toggleHistoryOrder();
+      expect(c.state.historyNewestFirst, isFalse);
+      await c.close();
+
+      final reopened = PresenterCubit(db, prefs);
+      expect(reopened.state.historyNewestFirst, isFalse);
+      await reopened.close();
+    });
+
     test('openHistory re-opens a past shabad at its line', () {
       cubit
         ..search('hsdb')
@@ -444,6 +492,80 @@ void main() {
         expect(second.state.intelligentSpacebar, isFalse);
         await second.close();
       });
+    });
+
+    test('nextLinePreview: next verse, null at end and on special slides', () {
+      cubit
+        ..search('ssnh')
+        ..selectResult(cubit.state.results.first); // shabad a,b at line 0
+      // At line 0, the preview is line b's gurmukhi.
+      expect(cubit.state.nextLinePreview, kLineB);
+      cubit.nextLine(); // now at the last line
+      expect(cubit.state.nextLinePreview, isNull);
+      // Quick-insert slide: nothing to preview.
+      cubit.showWaheguru();
+      expect(cubit.state.nextLinePreview, isNull);
+    });
+
+    test('openRandomShabad projects a real SGGS shabad at its first line', () {
+      cubit.openRandomShabad();
+      expect(cubit.state.shabad, isNotEmpty);
+      final line = cubit.state.line;
+      expect(line, isNotNull);
+      expect(line!.id, isIn(['a', 'c', 'k0']), reason: 'a source-1 first line');
+      expect(cubit.state.current, 0, reason: 'opens at the shabad start');
+    });
+
+    test(
+      'copyableGurmukhi: the active verse, null on a quick-insert slide',
+      () {
+        cubit
+          ..search('ssnh')
+          ..selectResult(cubit.state.results.first); // line 'a'
+        expect(cubit.state.copyableGurmukhi, kLineA);
+        cubit.showWaheguru(); // special slide - nothing to copy
+        expect(cubit.state.copyableGurmukhi, isNull);
+      },
+    );
+
+    test('displayNextLine toggles and persists', () async {
+      expect(cubit.state.displayNextLine, isFalse);
+      cubit.toggleDisplayNextLine();
+      expect(cubit.state.displayNextLine, isTrue);
+      final second = PresenterCubit(
+        db,
+        Preferences(await SharedPreferences.getInstance()),
+      );
+      expect(second.state.displayNextLine, isTrue);
+      await second.close();
+    });
+
+    test('per-row font scales set independently and reset together', () {
+      cubit
+        ..setFontScale(1.4)
+        ..setTranslationScale(1.2)
+        ..setTeekaScale(0.8)
+        ..setTranslitScale(1.1)
+        ..setAnnouncementScale(1.3);
+      expect(cubit.state.fontScale, closeTo(1.4, 1e-9));
+      expect(cubit.state.translationScale, closeTo(1.2, 1e-9));
+      expect(cubit.state.teekaScale, closeTo(0.8, 1e-9));
+      expect(cubit.state.translitScale, closeTo(1.1, 1e-9));
+      expect(cubit.state.announcementScale, closeTo(1.3, 1e-9));
+      // Out of range clamps.
+      cubit.setTranslationScale(9);
+      expect(cubit.state.translationScale, 1.5);
+      // Reset returns every row to 100%.
+      cubit.resetFontSizes();
+      for (final v in [
+        cubit.state.fontScale,
+        cubit.state.translationScale,
+        cubit.state.teekaScale,
+        cubit.state.translitScale,
+        cubit.state.announcementScale,
+      ]) {
+        expect(v, 1.0);
+      }
     });
 
     test('display options toggle and font scale clamps', () {

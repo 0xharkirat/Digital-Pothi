@@ -36,6 +36,18 @@ void main() {
       expect(gurbani.shabadLines('S2').single.gurmukhi, kLineC);
     });
 
+    test('randomShabadLineId picks a source-scoped shabad first line', () {
+      // Draw many times: source-1 shabads are S1/S2/S4 (first lines a/c/k0);
+      // S3 (Dasam, source 2) must never appear.
+      final ids = {for (var i = 0; i < 40; i++) gurbani.randomShabadLineId()};
+      expect(ids, isNot(contains('')), reason: 'always resolves a line');
+      expect(ids, isNot(contains('d')), reason: 'source-2 shabads excluded');
+      expect(ids.every(['a', 'c', 'k0'].contains), isTrue);
+      // Whatever it returns is the FIRST line of its shabad.
+      final ctx = gurbani.shabadContextFor(ids.first);
+      expect(ctx.lines.first.id, ids.first);
+    });
+
     test('verses carry the corpus line type and physical ang line', () {
       final kirtan = gurbani.shabadLines(kKirtanShabad);
       expect(kirtan.map((v) => v.typeId), [2, 1, 4, 4, 3, 4, 4]);
@@ -105,6 +117,21 @@ void main() {
 
     test('first-letter search auto-detects Gurmukhi input', () {
       expect(gurbani.searchFirstLetters('ਸਸਨ').single.lineId, 'a');
+    });
+
+    test('roman first letters fold phonetically (t finds ਤ, b finds ਭ)', () {
+      // Line d's font codes are 'dqpc' (ਦ ਤ ਪ ਚ): a typed t must reach ਤ (q).
+      expect(gurbani.searchFirstLetters('dtpc').single.lineId, 'd');
+      // Every ਤ-family line answers: c (…ਵਤ) and d (ਦਤ…), reading order.
+      expect(gurbani.searchFirstLetters('t').map((r) => r.lineId), ['c', 'd']);
+      // Line b's are 'BBnajbpB' (ਭ...): a typed b must reach ਭ (B), and the
+      // start-anchored form works through the fold too.
+      expect(
+        gurbani.searchFirstLetters('bbna', anywhere: false).single.lineId,
+        'b',
+      );
+      // ੳ is font 'a': typed u reaches it (ਉਤਰੀ position in line b).
+      expect(gurbani.searchFirstLetters('bbnu').single.lineId, 'b');
     });
 
     test('first-letter "anywhere" matches mid-run; "start" does not', () {

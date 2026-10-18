@@ -34,14 +34,14 @@ GurbaniDatabase openTestCorpus() {
       'CREATE TABLE bani_lines (line_id TEXT, bani_id INTEGER, line_group INTEGER)',
     )
     // Inserted out of order_id order, to prove the queries sort by it. Columns:
-    // id, shabad, gurmukhi, ang, order_id, first_letters (roman),
-    // first_letters_uni, type_id, source_line.
+    // id, shabad, gurmukhi, ang, order_id, first_letters (GurbaniAkhar font
+    // codes, faithful: ਭ=B, ਤ=q, ੳ=a), first_letters_uni, type_id, source_line.
     ..execute(
       "INSERT INTO lines VALUES "
-      "('b','S1','$kLineB',4,20,'bbnujbpb','ਭਭਨਉਜਬਪਭ',4,2),"
+      "('b','S1','$kLineB',4,20,'BBnajbpB','ਭਭਨਉਜਬਪਭ',4,2),"
       "('a','S1','$kLineA',4,10,'ssnhjslv','ਸਸਨਹਜਸਲਵ',4,1),"
-      "('c','S2','$kLineC',9,30,'hsdbvt','ਹਸਦਬਵਤ',4,1),"
-      "('d','S3','$kLineD',4,5000,'dtpc','ਦਤਪਚ',4,NULL)",
+      "('c','S2','$kLineC',9,30,'hsdbvq','ਹਸਦਬਵਤ',4,1),"
+      "('d','S3','$kLineD',4,5000,'dqpc','ਦਤਪਚ',4,NULL)",
     )
     // The kirtan shabad: types 2,1 = headers; 3 = rahao; 4 = pankti. Couplets
     // share a source_line; the rahao sits alone on its own line.

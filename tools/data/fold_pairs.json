@@ -1,0 +1,10 @@
+{
+  "_provenance": "Derived 2026-07-17 from STTM realm sttmdesktop-evergreen-v2: every (FirstLetterStr font code -> FirstLetterEng char) pair across 142,578 verses (tmp/sttm-desktop/dump_realm2.cjs). Deliberate lenient supersets vs STTM: t also covers retroflex ਟ ਠ (STTM needs uppercase T) and r covers ੜ (STTM needs R) - we lowercase input.",
+  "classes": {
+    "a": "[Aa]", "b": "[bB]", "c": "[cC]", "d": "[dDfF]", "e": "[e]",
+    "f": "[P]", "g": "[gGZ]", "h": "[h]", "i": "[e<]", "j": "[jJ]",
+    "k": "[kK^]", "l": "[lL]", "m": "[m]", "n": "[nx|\\]", "o": "[Ea]",
+    "p": "[pP&]", "q": "[qQ]", "r": "[rV]", "s": "[sS]", "t": "[tTqQ]",
+    "u": "[a]", "v": "[v]", "w": "[v]", "x": "[x]", "y": "[X]", "z": "[z]"
+  }
+}

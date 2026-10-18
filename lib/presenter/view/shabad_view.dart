@@ -159,7 +159,7 @@ class _ShabadToolbar extends StatelessWidget {
   }
 }
 
-class _LineRow extends StatelessWidget {
+class _LineRow extends StatefulWidget {
   const _LineRow({
     required this.verse,
     required this.selected,
@@ -177,14 +177,29 @@ class _LineRow extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<_LineRow> createState() => _LineRowState();
+}
+
+class _LineRowState extends State<_LineRow> {
+  bool _hovered = false;
+
+  Verse get verse => widget.verse;
+  bool get selected => widget.selected;
+  bool get following => widget.following;
+  bool get isHome => widget.isHome;
+  VoidCallback? get onSetHome => widget.onSetHome;
+
+  @override
   Widget build(BuildContext context) {
     final g = context.gurbani;
     final theme = Theme.of(context);
     return InkWell(
-      onTap: onTap,
+      mouseCursor: kClickCursor,
+      onTap: widget.onTap,
+      onHover: (h) => setState(() => _hovered = h),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: selected ? g.accent.withValues(alpha: 0.14) : null,
           border: Border(
@@ -222,19 +237,28 @@ class _LineRow extends StatelessWidget {
               Icon(Icons.graphic_eq, size: 16, color: g.accent)
             else if (selected)
               Icon(Icons.check, size: 16, color: g.accent),
-            if (onSetHome != null)
+            // Hover-reveal like STTM: the filled home stays put; the "set
+            // home here" affordance appears only under the pointer, so a
+            // shabad isn't a column of idle icons.
+            if (onSetHome != null && (isHome || _hovered))
               IconButton(
                 onPressed: onSetHome,
                 icon: Icon(isHome ? Icons.home : Icons.home_outlined),
                 iconSize: 16,
-                visualDensity: VisualDensity.compact,
+                // Tight box so the pop-in never shifts the row's other
+                // trailing icons or re-wraps a long line.
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints.tight(const Size(28, 28)),
                 tooltip: isHome ? 'Home line' : 'Set home line',
                 color: isHome
                     ? g.accent
                     : theme.colorScheme.onSurfaceVariant.withValues(
-                        alpha: 0.35,
+                        alpha: 0.55,
                       ),
-              ),
+              )
+            else if (onSetHome != null)
+              // Reserve the exact same box while hidden.
+              const SizedBox(width: 28, height: 28),
           ],
         ),
       ),

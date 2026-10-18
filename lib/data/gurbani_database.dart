@@ -68,7 +68,10 @@ class SearchResult {
     required this.page,
     required this.author,
     required this.section,
+    this.firstLetters = '',
+    this.firstLettersUni = '',
     this.translation = '',
+    this.sourceId = 0,
   });
 
   final String lineId;
@@ -79,8 +82,15 @@ class SearchResult {
   final int page;
   final String author; // writer, e.g. "Guru Nanak Dev Ji"
   final String section; // raag / bani division, e.g. "Raag Tukhaari"
+  final String firstLetters; // per-word first letters (GurbaniAkhar font codes)
+  final String firstLettersUni; // per-word first letters (Unicode Gurmukhi)
   final String translation; // English, searchEnglish results only
+  final int sourceId; // corpus `sources` id - drives the result accent colour
 }
+
+/// Search methods cap their results here (Ang search is uncapped - a page is
+/// a page). The view uses it to tell a truncated list from a complete one.
+const kSearchLimit = 40;
 
 /// One row for a search filter dropdown (writers / raags / sources).
 class FilterOption {
@@ -267,6 +277,22 @@ class GurbaniDatabase {
     ),
   );
 
+  /// A random shabad's first line id, scoped to a source (SGGS = 1) - STTM's
+  /// Random Shabad. Picks the shabad first (uniform over shabads), then its
+  /// opening line. Empty string when the source has no shabads.
+  String randomShabadLineId({int sourceId = 1}) {
+    final shabad = _db.select(
+      'SELECT id FROM shabads WHERE source_id = ? ORDER BY RANDOM() LIMIT 1',
+      [sourceId],
+    );
+    if (shabad.isEmpty) return '';
+    final line = _db.select(
+      'SELECT id FROM lines WHERE shabad_id = ? ORDER BY order_id LIMIT 1',
+      [shabad.first['id']],
+    );
+    return line.isEmpty ? '' : line.first['id'] as String;
+  }
+
   /// The shabad that contains [lineId], with its author + raag - for showing a
   /// line (a search hit or one the tracker found) in its full context. Empty
   /// [ShabadContext.lines] if the line is unknown.
@@ -398,7 +424,8 @@ class GurbaniDatabase {
   // split so searchEnglish can add its translation column + join between them.
   static const _searchSelect =
       'SELECT l.id, l.shabad_id AS sid, l.order_id AS ord, l.gurmukhi_uni AS g, '
-      'l.source_page AS page, w.name_english AS author, '
+      'l.source_page AS page, sh.source_id AS src, w.name_english AS author, '
+      'l.first_letters AS fl, l.first_letters_uni AS flu, '
       "sec.name_english AS section, COALESCE(tl.text, '') AS translit";
   static const _searchJoins =
       ' FROM lines l '
@@ -437,29 +464,82 @@ class GurbaniDatabase {
   /// ("sdvsd" for ਸਾਜਨ ਦੇਸਿ ਵਿਦੇਸੀਅੜੇ ਸਾਨੇਹੜੇ ਦੇਦੀ), roman or Gurmukhi; the script
   /// is auto-detected. [anywhere] matches the run anywhere in a line's first
   /// letters (STTM's default), else only at the start.
+  /// Phonetic roman → font-code GLOB classes. Derived EMPIRICALLY from the
+  /// shipped STTM realm: every (FirstLetterStr font code, FirstLetterEng
+  /// char) pair across its 142k verses (see docs/DB-COMPARISON.md). Their
+  /// fold is baked into the data; ours runs in the query. Two deliberate
+  /// supersets: t also reaches the retroflexes ਟ ਠ (STTM needs uppercase T),
+  /// and r also reaches ੜ (STTM needs R) - we lowercase input, so the
+  /// lenient class beats an unreachable distinction.
+  /// Public for the fixture pin test (test/data/roman_fold_test.dart) - the
+  /// committed tools/data/fold_pairs.json is the source of truth.
+  static const romanClasses = <String, String>{
+    'a': '[Aa]', // ਅ + ੳ
+    'b': '[bB]',
+    'c': '[cC]',
+    'd': '[dDfF]', // ਦ ਧ ਡ ਢ - STTM folds all four to d
+    'e': '[e]',
+    'f': '[P]', // ਫ
+    'g': '[gGZ]', // + ਗ਼
+    'h': '[h]',
+    'i': '[e<]', // ੲ + ੴ (STTM folds Ik Onkar to i)
+    'j': '[jJ]',
+    'k': '[kK^]', // + ਖ਼
+    'l': '[lL]',
+    'm': '[m]',
+    'n': r'[nx|\]', // ਨ ਣ ਙ ਞ
+    'o': '[Ea]', // ਓ + ੳ
+    'p': '[pP&]',
+    'q': '[qQ]',
+    'r': '[rV]', // + ੜ
+    's': '[sS]', // + ਸ਼
+    't': '[tTqQ]', // ਟ ਠ ਤ ਥ
+    'u': '[a]', // ੳ
+    'v': '[v]',
+    'w': '[v]',
+    'x': '[x]', // ਣ
+    'y': '[X]', // ਯ
+    'z': '[z]', // ਜ਼
+  };
+
+  static String _romanGlob(String query) => query
+      .toLowerCase()
+      .split('')
+      .map((ch) => romanClasses[ch] ?? ('*?['.contains(ch) ? '[\$ch]' : ch))
+      .join();
+
   List<SearchResult> searchFirstLetters(
     String letters, {
     bool anywhere = true,
     int writerId = 0,
     int sectionId = 0,
     int sourceId = 0,
-    int limit = 40,
+    int limit = kSearchLimit,
   }) {
     final query = letters.replaceAll(' ', '');
     if (query.isEmpty) return const [];
     // Gurmukhi codepoints are U+0A00..U+0A7F; anything in that range → Gurmukhi.
     final gurmukhi = query.runes.any((r) => r >= 0x0A00 && r <= 0x0A7F);
-    final col = gurmukhi ? 'first_letters_uni' : 'first_letters';
     final (filterSql, filterArgs) = _filterClauses(
       writerId: writerId,
       sectionId: sectionId,
       sourceId: sourceId,
     );
+    // Roman input is phonetic (STTM's FirstLetterEng folds ਥ/ਤ/ਟ/ਠ → t in its
+    // data; we fold in the query instead): each typed letter expands to a GLOB
+    // class over the font codes, so t finds ਤ ਥ ਟ ਠ and k finds ਕ ਖ.
+    final (col, op, pattern) = gurmukhi
+        ? ('first_letters_uni', 'LIKE', anywhere ? '%$query%' : '$query%')
+        : (
+            'first_letters',
+            'GLOB',
+            anywhere ? '*${_romanGlob(query)}*' : '${_romanGlob(query)}*',
+          );
     return _toResults(
       _db.select(
-        '$_searchCols WHERE l.$col LIKE ?$filterSql '
+        '$_searchCols WHERE l.$col $op ?$filterSql '
         'ORDER BY l.order_id LIMIT ?',
-        [anywhere ? '%$query%' : '$query%', ...filterArgs, limit],
+        [pattern, ...filterArgs, limit],
       ),
     );
   }
@@ -471,7 +551,7 @@ class GurbaniDatabase {
     int writerId = 0,
     int sectionId = 0,
     int sourceId = 0,
-    int limit = 40,
+    int limit = kSearchLimit,
   }) {
     final terms = normalize(
       query,
@@ -501,7 +581,7 @@ class GurbaniDatabase {
     int writerId = 0,
     int sectionId = 0,
     int sourceId = 0,
-    int limit = 40,
+    int limit = kSearchLimit,
   }) {
     final words = query
         .trim()
@@ -578,7 +658,10 @@ class GurbaniDatabase {
         page: (r['page'] as int?) ?? 0,
         author: (r['author'] as String?) ?? '',
         section: (r['section'] as String?) ?? '',
+        firstLetters: (r['fl'] as String?) ?? '',
+        firstLettersUni: (r['flu'] as String?) ?? '',
         translation: withTranslation ? (r['translation'] as String?) ?? '' : '',
+        sourceId: (r['src'] as int?) ?? 0,
       ),
   ];
 

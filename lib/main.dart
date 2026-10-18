@@ -10,6 +10,7 @@ import 'data/gurbani_database.dart';
 import 'data/preferences.dart';
 import 'presenter/presenter.dart';
 import 'theme/app_theme.dart';
+import 'theme/theme_cubit.dart';
 
 /// Desktop, where windowing applies. window_manager is desktop-only.
 bool get _isDesktop =>
@@ -73,20 +74,29 @@ class GurbaniLiveApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Gurbani Live',
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.dark, // a presenter tool defaults dark
-      home: database == null
-          ? _CorpusError(error: error)
-          : MultiRepositoryProvider(
-              providers: [
-                RepositoryProvider.value(value: database!),
-                RepositoryProvider.value(value: prefs),
-              ],
-              child: const PresenterPage(),
-            ),
+    // ThemeCubit sits above the MaterialApp so the Light/Dark setting flips
+    // the whole app live - a Cubit like everything else, not a ValueNotifier.
+    return BlocProvider(
+      create: (_) => ThemeCubit(prefs),
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, mode) => MaterialApp(
+          title: 'Gurbani Live',
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: mode,
+          home: database == null
+              ? _CorpusError(error: error)
+              : MultiRepositoryProvider(
+                  providers: [
+                    RepositoryProvider.value(value: database!),
+                    RepositoryProvider.value(value: prefs),
+                  ],
+                  // The ThemeCubit created above is already in scope for the
+                  // subtree, so the settings screen reads it directly.
+                  child: const PresenterPage(),
+                ),
+        ),
+      ),
     );
   }
 }

@@ -1,0 +1,947 @@
+[
+ {
+  "id": "XNAS",
+  "ang": 305,
+  "ours": "quDujyvfumYhorukoidisnAwveIqUhYNsuGVumyrYminBwxw",
+  "theirs": "quDujyvfumYhorukoidisnwAwveIqUhYNsuGVumyrYminBwxw",
+  "sim": 0.99
+ },
+ {
+  "id": "EVNM",
+  "ang": 363,
+  "ours": "puqRkliqDinmwieAwicqulweyJUTumohupwKMfivkwrurhwau",
+  "theirs": "puqRkliqDinmwieAwicqulweyJUTumohupwKMfivkwrurhwa",
+  "sim": 0.99
+ },
+ {
+  "id": "PCVC",
+  "ang": 1402,
+  "ours": "pIqbsnkuMddsnipRAwsihqkMTmwlmuktusIismorpMKcwihjIau",
+  "theirs": "pIqbsnkuMddsnipRAsihqkMTmwlmuktusIismorpMKcwihjIau",
+  "sim": 0.99
+ },
+ {
+  "id": "YA8D",
+  "ang": 984,
+  "ours": "DnuDnuswDijnIhirpRBupwieAwiqnpUCauhirkIbwqw",
+  "theirs": "DnuDnuswDuijnIhirpRBupwieAwiqnpUCauhirkIbwqw",
+  "sim": 0.989
+ },
+ {
+  "id": "73Q9",
+  "ang": 1276,
+  "ours": "vfYBwiggurupUrwpwieAwhirhirnwmuiDAwierhwau",
+  "theirs": "vfYBwiggurpUrwpwieAwhirhirnwmuiDAwierhwau",
+  "sim": 0.988
+ },
+ {
+  "id": "BW02",
+  "ang": 1165,
+  "ours": "igirqrjljuAwlwBYrwiKErwjwrwimmwieAwPyrI",
+  "theirs": "igirqrjlujuAwlwBYrwiKErwjwrwimmwieAwPyrI",
+  "sim": 0.987
+ },
+ {
+  "id": "BJK3",
+  "ang": 1228,
+  "ours": "DwirAnugRhuApunIkirlInIgurmuiKpUrigAwnI",
+  "theirs": "DwirAnugRhuApnIkirlInIgurmuiKpUrigAwnI",
+  "sim": 0.987
+ },
+ {
+  "id": "5BD6",
+  "ang": 26,
+  "ours": "ibnusqgursuKunpwveIiPiriPirjonIpwih",
+  "theirs": "ibnusiqgursuKunpwveIiPiriPirjonIpwih",
+  "sim": 0.986
+ },
+ {
+  "id": "9A9Z",
+  "ang": 588,
+  "ours": "vrmImwrIswpunwmrYiqauingurykrmkmwih",
+  "theirs": "vrmImwrIswpunmrYiqauingurykrmkmwih",
+  "sim": 0.986
+ },
+ {
+  "id": "2M3P",
+  "ang": 975,
+  "ours": "hmrYsuAwmIlochmlweIhmjIvhdyiKhirimly",
+  "theirs": "hmrYsuAwmIlochmlweIhmjIvihdyiKhirimly",
+  "sim": 0.986
+ },
+ {
+  "id": "M0W2",
+  "ang": 982,
+  "ours": "hirhirrUprMgsiBqyrymyrylwlnlwlgulwry",
+  "theirs": "hirhirrUprMigsiBqyrymyrylwlnlwlgulwry",
+  "sim": 0.986
+ },
+ {
+  "id": "WDMK",
+  "ang": 990,
+  "ours": "ieikpwKMfInwimnrwcihieikhirhircrxIry",
+  "theirs": "ieikpwKMfInwimnrwcihiekhirhircrxIry",
+  "sim": 0.986
+ },
+ {
+  "id": "MVFY",
+  "ang": 703,
+  "ours": "XwrvyihkfUMihikcwVYhauiksuicqyhIAw",
+  "theirs": "XwrvyihkfUMihkcwVYhauiksuicqyhIAw",
+  "sim": 0.985
+ },
+ {
+  "id": "PQKA",
+  "ang": 471,
+  "ours": "nweyhuqutYnmlulgYnweyhujlYnjwie",
+  "theirs": "nweyhuqutYnwmlulgYnweyhujlYnjwie",
+  "sim": 0.984
+ },
+ {
+  "id": "RL2S",
+  "ang": 558,
+  "ours": "sqguirdIAwmokaueyhuinDwnurhwau",
+  "theirs": "siqguirdIAwmokaueyhuinDwnurhwau",
+  "sim": 0.984
+ },
+ {
+  "id": "LR63",
+  "ang": 756,
+  "ours": "scwswhuscyvxjwryEQYkUVynwitkMin",
+  "theirs": "scwswhuscyvxjwryEQYkUVynitkMin",
+  "sim": 0.984
+ },
+ {
+  "id": "QMZ4",
+  "ang": 756,
+  "ours": "hirkIkImiqnwpvYhirjsuilKxunjwie",
+  "theirs": "hirkIkImiqnpvYhirjsuilKxunjwie",
+  "sim": 0.984
+ },
+ {
+  "id": "DKV1",
+  "ang": 1094,
+  "ours": "kwjluhwruqmolrsuibnupsyhiBrsCwru",
+  "theirs": "kwjluhwrqmolrsuibnupsyhiBrsCwru",
+  "sim": 0.984
+ },
+ {
+  "id": "YV1F",
+  "ang": 1124,
+  "ours": "suAwnsqRüAjwqusBqyik®s˜lwvYhyqu",
+  "theirs": "suAwnsqRüAjwqusBqyik®®s˜lwvYhyqu",
+  "sim": 0.984
+ },
+ {
+  "id": "CUD6",
+  "ang": 1413,
+  "ours": "mnmuKbMinclweIAihnwimlhIvigsig",
+  "theirs": "mnmuiKbMinclweIAihnwimlhIvigsig",
+  "sim": 0.984
+ },
+ {
+  "id": "7UL8",
+  "ang": 759,
+  "ours": "siqgurumyrwsdwsdwnwAwvYnwjwie",
+  "theirs": "siqgurumyrwsdwsdwnwAwvYnjwie",
+  "sim": 0.982
+ },
+ {
+  "id": "C5MV",
+  "ang": 949,
+  "ours": "audrYkwrixAwpxybhlyByKkryin",
+  "theirs": "audrYkwrixAwpxybhlyByiKkryin",
+  "sim": 0.982
+ },
+ {
+  "id": "LTLQ",
+  "ang": 953,
+  "ours": "hirkIkImiqnwpvYikCukhxunjwpY",
+  "theirs": "hirkIkImiqnpvYikCukhxunjwpY",
+  "sim": 0.982
+ },
+ {
+  "id": "T916",
+  "ang": 1373,
+  "ours": "qwsuptMqrnwpujYhirjnkIpinhwir",
+  "theirs": "qwsuptMqrnpujYhirjnkIpinhwir",
+  "sim": 0.982
+ },
+ {
+  "id": "87MQ",
+  "ang": 1382,
+  "ours": "srprmYQYAwvxwmrxhunwfirAwhu",
+  "theirs": "srprmYQYAwvxwmrxhunfirAwhu",
+  "sim": 0.981
+ },
+ {
+  "id": "F0AQ",
+  "ang": 1042,
+  "ours": "sbdsuriqibnuAweIAYjweIAY",
+  "theirs": "sbdusuriqibnuAweIAYjweIAY",
+  "sim": 0.98
+ },
+ {
+  "id": "S49Q",
+  "ang": 767,
+  "ours": "qwkIkImiqnwpvYjylocYkoeI",
+  "theirs": "qwkIkImiqnpvYjylocYkoeI",
+  "sim": 0.979
+ },
+ {
+  "id": "WT20",
+  "ang": 1134,
+  "ours": "gurmuiKsyvwGwlijinGwlI",
+  "theirs": "gurmuiKsyvwGwilijinGwlI",
+  "sim": 0.978
+ },
+ {
+  "id": "H9J4",
+  "ang": 1135,
+  "ours": "joikCukrysoeIBlhosIhiriDAwvhuAnidnunwmumurwir",
+  "theirs": "joikCukrYsoeIBlhosIhiriDAwvhuAnidnunwmumurwir",
+  "sim": 0.978
+ },
+ {
+  "id": "26X5",
+  "ang": 965,
+  "ours": "ibnunwvYbhuPyriPrwhir",
+  "theirs": "ibnunwvYbhuPyruiPrwhir",
+  "sim": 0.977
+ },
+ {
+  "id": "2PBT",
+  "ang": 708,
+  "ours": "sMcMiqibiKAwClµiCdRMnwnkibnuhirsMigncwlqy",
+  "theirs": "sMcMiqibiKAwClMiCdRMnwnkibnuhirsMigncwlqy",
+  "sim": 0.976
+ },
+ {
+  "id": "3RY1",
+  "ang": 862,
+  "ours": "PwikEmInkipkkIinAweIqUauriJrihEkusMBwiely",
+  "theirs": "PwikEmInkipkkIinAweIqUauriJrihEksuMBwiely",
+  "sim": 0.976
+ },
+ {
+  "id": "XJ79",
+  "ang": 1187,
+  "ours": "mnuBUlausmJisswcnwie",
+  "theirs": "mnuBUlausmJisswicnwie",
+  "sim": 0.976
+ },
+ {
+  "id": "6Y4F",
+  "ang": 1287,
+  "ours": "syeImueyijniciqnAwvY",
+  "theirs": "syeImueyijiniciqnAwvY",
+  "sim": 0.976
+ },
+ {
+  "id": "S86E",
+  "ang": 374,
+  "ours": "sBibiDKoeIloiBsuAwn",
+  "theirs": "siBibiDKoeIloiBsuAwn",
+  "sim": 0.974
+ },
+ {
+  "id": "JDPB",
+  "ang": 1130,
+  "ours": "hirkwnwmuinDwnopwieAwsuKuvisAwminAwey",
+  "theirs": "hirkwnwmuinDwnopwieAwsuKuvisAwminAwie",
+  "sim": 0.973
+ },
+ {
+  "id": "JDJ3",
+  "ang": 1215,
+  "ours": "ApnypihdUKApnypihsUKwApunyhIpihibrQw",
+  "theirs": "ApnypihdUKApunypihsUKwApnyhIpihibrQw",
+  "sim": 0.972
+ },
+ {
+  "id": "HHYW",
+  "ang": 1313,
+  "ours": "johirpRBBwvYsoQIAYjohirpRBukrysuhoie",
+  "theirs": "johirpRBuBwvYsoQIAYjohirpRBkrysuhoie",
+  "sim": 0.972
+ },
+ {
+  "id": "B5FS",
+  "ang": 608,
+  "ours": "iksuhaujwcIiksuAwrwDIjwsBukokIqwhosI",
+  "theirs": "ikshaujwcIiksAwrwDIjwsBukokIqwhosI",
+  "sim": 0.971
+ },
+ {
+  "id": "STMD",
+  "ang": 1163,
+  "ours": "koitkliKmIkrYsIgwr",
+  "theirs": "koitklKmIkrYsIgwr",
+  "sim": 0.971
+ },
+ {
+  "id": "0FJ0",
+  "ang": 1373,
+  "ours": "kbIrBlIBeIjoBaupirAwidswgeˆØIsBBUil",
+  "theirs": "kbIrBlIBeIjoBaupirAwidswgeˆØIsBBuil",
+  "sim": 0.971
+ },
+ {
+  "id": "ANSU",
+  "ang": 541,
+  "ours": "shsisAwxpnhimlYmyrIijMduVIeyjnnwnkgurmuiKjwqwrwmCkw",
+  "theirs": "shsisAwxpnhimlYmyrIijMduVIeyjnnwnkgurmuiKjwqwrwm",
+  "sim": 0.97
+ },
+ {
+  "id": "F4DN",
+  "ang": 1044,
+  "ours": "scYsbidrqybYrwgIAwvxujwxurhweIhy",
+  "theirs": "scysbidrqybYrwgIAwvxujwxurhweIhy",
+  "sim": 0.969
+ },
+ {
+  "id": "GZ15",
+  "ang": 1394,
+  "ours": "iqnrsokunhuhUAYiqnrsyAMqunlhIAih",
+  "theirs": "iqnrsokunhuhuAYiqnrsyAMqunlhIAih",
+  "sim": 0.969
+ },
+ {
+  "id": "A9D6",
+  "ang": 849,
+  "ours": "iblwvlkIvwrmhlw",
+  "theirs": "iblwvlukIvwrmhlw",
+  "sim": 0.968
+ },
+ {
+  "id": "PPAJ",
+  "ang": 1337,
+  "ours": "ijaujwnhuiqaurwKhusuAwmIjnnwnkudwsuqumnBwCkw",
+  "theirs": "ijaujwnhuiqaurwKhusuAwmIjnnwnkudwsuqumnBw",
+  "sim": 0.965
+ },
+ {
+  "id": "C4VS",
+  "ang": 1326,
+  "ours": "siqguruimlYqwnwmuidRVweyrwmnwmYrlYimlIjYCkw",
+  "theirs": "siqguruimlYqwnwmuidRVweyrwmnwmYrlYimlIjY",
+  "sim": 0.964
+ },
+ {
+  "id": "XKRZ",
+  "ang": 964,
+  "ours": "ijsnoivsrYnwausujonIhWFIAY",
+  "theirs": "ijsnoivsrYnwausojonIhWFIAY",
+  "sim": 0.962
+ },
+ {
+  "id": "V4WU",
+  "ang": 862,
+  "ours": "jnnwnkkIhirAwspujwvhuhirdrsinsWiqsrIrCkw",
+  "theirs": "jnnwnkkIhirAwspujwvhuhirdrsinsWiqsrIr",
+  "sim": 0.961
+ },
+ {
+  "id": "NZU8",
+  "ang": 1311,
+  "ours": "nwnkrwKurwKupRBmyrysqsMgiqrwiKsmwvYgoCkw",
+  "theirs": "nwnkrwKurwKupRBmyrysqsMgiqrwiKsmwvYgo",
+  "sim": 0.961
+ },
+ {
+  "id": "LE6J",
+  "ang": 531,
+  "ours": "jipjipnwmujIvwqyrIbwxInwnkdwsbilhwryCky",
+  "theirs": "jipjipnwmujIvwqyrIbwxInwnkdwsbilhwry",
+  "sim": 0.96
+ },
+ {
+  "id": "7J1X",
+  "ang": 983,
+  "ours": "nwnkmYDrAvrnkweImYsiqguruguruinsqwryCkw",
+  "theirs": "nwnkmYDrAvrnkweImYsiqguruguruinsqwry",
+  "sim": 0.96
+ },
+ {
+  "id": "DWZB",
+  "ang": 986,
+  "ours": "jnnwnkrsuAMimRqupIAwsBlwQIBUKiqKwtCkw",
+  "theirs": "jnnwnkrsuAMimRqupIAwsBlwQIBUKiqKwt",
+  "sim": 0.958
+ },
+ {
+  "id": "QRK0",
+  "ang": 530,
+  "ours": "nwmuADwrudIjYnwnkkauAwndsUKGnyrYCky",
+  "theirs": "nwmuADwrudIjYnwnkkauAwndsUKGnyrY",
+  "sim": 0.955
+ },
+ {
+  "id": "06Q8",
+  "ang": 1321,
+  "ours": "jnunwnkusrinduAwirhirlwjrKwvihgyCkw",
+  "theirs": "jnunwnkusrinduAwirhirlwjrKwvihgy",
+  "sim": 0.955
+ },
+ {
+  "id": "H4ZC",
+  "ang": 686,
+  "ours": "DnwsrImhlwGruAstpdI",
+  "theirs": "DnwsrImhlwGruAstpdIAw",
+  "sim": 0.95
+ },
+ {
+  "id": "5W3M",
+  "ang": 1143,
+  "ours": "ijskyrwKyhoeyhirAwip",
+  "theirs": "ijskyrwKyhoiehirAwip",
+  "sim": 0.95
+ },
+ {
+  "id": "SPCF",
+  "ang": 824,
+  "ours": "DIraudyiKqumwryrMgw",
+  "theirs": "DIraudyiKqumwrYrMgw",
+  "sim": 0.947
+ },
+ {
+  "id": "0EVL",
+  "ang": 1161,
+  "ours": "kihkmIrAbkhIAYkwih",
+  "theirs": "kihkbIrAbkhIAYkwih",
+  "sim": 0.944
+ },
+ {
+  "id": "SVTJ",
+  "ang": 874,
+  "ours": "hirhrnwkshryprwn",
+  "theirs": "hirhrnwKshryprwn",
+  "sim": 0.938
+ },
+ {
+  "id": "T69K",
+  "ang": 977,
+  "ours": "sBiklibKpwplhMqI",
+  "theirs": "sBiklivKpwplhMqI",
+  "sim": 0.938
+ },
+ {
+  "id": "KBYD",
+  "ang": 478,
+  "ours": "iesubMdyisirjulmuhoqhYjmunhIhtYgusweIduquky",
+  "theirs": "iesubMdyisirjulmuhoqhYjmunhIhtYgusweI",
+  "sim": 0.925
+ },
+ {
+  "id": "2CTZ",
+  "ang": 792,
+  "ours": "rwgusUhIbwxIsRIkbIrjIauqQwsBnwBgqwkIkbIrky",
+  "theirs": "rwgusUhIbwxIsRIkbIrjIauqQwsBnwBgqwkI",
+  "sim": 0.923
+ },
+ {
+  "id": "SCQW",
+  "ang": 486,
+  "ours": "rwmrswienpIErydgrw",
+  "theirs": "rwmrswienpIaurydgrw",
+  "sim": 0.919
+ },
+ {
+  "id": "0L3F",
+  "ang": 1410,
+  "ours": "slokvwrWqyvDIkmhlw",
+  "theirs": "slokvwrWqyvDIk",
+  "sim": 0.875
+ },
+ {
+  "id": "6NPH",
+  "ang": 1251,
+  "ours": "rwguswrMgbwxIBgqWkIkbIrjI",
+  "theirs": "rwguswrMgbwxIBgqWkI",
+  "sim": 0.864
+ },
+ {
+  "id": "XYHK",
+  "ang": 213,
+  "ours": "AinkbMDnmwieAwBrmquBrmwieAwguxiniDnhIgwieAwmnibKYhImihluJIhy",
+  "theirs": "AinkbMDnmwieAwBrmquBrmwieAwguxiniDnhIgwieAw",
+  "sim": 0.835
+ },
+ {
+  "id": "9XVT",
+  "ang": 213,
+  "ours": "qUhIigRihqUhIbinqUhIgwauqUhIsuinhYnwnknyrnyrI",
+  "theirs": "qUhIigRihqUhIbinqUhIgwauqUhIsuin",
+  "sim": 0.831
+ },
+ {
+  "id": "CT0H",
+  "ang": 213,
+  "ours": "qUMhIrsqUMhIjsqUMhIrUpqUhIrMgAwsEtpRBqorI",
+  "theirs": "qUMhIrsqUMhIjsqUMhIrUpqUhIrMg",
+  "sim": 0.829
+ },
+ {
+  "id": "C3HT",
+  "ang": 214,
+  "ours": "EuhIBwTIEuhIpocwauhIipAwroauhIrUcwminEhosuKujwqo",
+  "theirs": "EuhIBwTIEuhIpocwauhIipAwroauhIrUcw",
+  "sim": 0.829
+ },
+ {
+  "id": "QHDC",
+  "ang": 213,
+  "ours": "kwhUjogkwhUBogkwhUigAwnkwhUiDAwnkwhUhofMfDirho",
+  "theirs": "kwhUjogkwhUBogkwhUigAwnkwhUiDAwn",
+  "sim": 0.821
+ },
+ {
+  "id": "KPDX",
+  "ang": 380,
+  "ours": "nwnkswDUsMigjwgyigAwnrMigvfBwgyikrpw",
+  "theirs": "nwnkswDUsMigjwgyigAwnrMig",
+  "sim": 0.82
+ },
+ {
+  "id": "5AX7",
+  "ang": 407,
+  "ours": "EhunyhunvylwApunypRIqmisaulwigrhYrhwau",
+  "theirs": "ApunypRIqmisaulwigrhYrhwau",
+  "sim": 0.812
+ },
+ {
+  "id": "1A6K",
+  "ang": 213,
+  "ours": "qUhImwnqUMhIDwnqUhIpiqqUhIpRwnguirqUtIlYjorI",
+  "theirs": "qUhImwnqUMhIDwnqUhIpiqqUhIpRwn",
+  "sim": 0.811
+ },
+ {
+  "id": "DWWY",
+  "ang": 473,
+  "ours": "AMnudyvqwpwxIdyvqwbYsMqrudyvqwlUxu",
+  "theirs": "AMnudyvqwpwxIdyvqwbYsMqrudyvqwlUxupMjvwpwieAwiGrqu",
+  "sim": 0.81
+ },
+ {
+  "id": "MRU2",
+  "ang": 870,
+  "ours": "rwgugoNfbwxIBgqwkIkbIrjIGru",
+  "theirs": "rwgugoNfbwxIkbIrjIaukIGru",
+  "sim": 0.808
+ },
+ {
+  "id": "7SZ2",
+  "ang": 213,
+  "ours": "jwkauryikrpwkrYjIvqsoeImrYswDsMigmwieAwqrYnwnksojnudirhirisJIhy",
+  "theirs": "jwkauryikrpwkrYjIvqsoeImrYswDsMigmwieAwqrY",
+  "sim": 0.8
+ },
+ {
+  "id": "XWWS",
+  "ang": 968,
+  "ours": "rwmklIbwxIBgqwkIkbIrjIau",
+  "theirs": "rwmklIbwxIBgqwkI",
+  "sim": 0.8
+ },
+ {
+  "id": "6N3W",
+  "ang": 1119,
+  "ours": "mweIsMqsMigjwgIipRArMgdyKYjpqInwmuinDwnIrhwau",
+  "theirs": "ipRArMgdyKYjpqInwmuinDwnIrhwau",
+  "sim": 0.8
+ },
+ {
+  "id": "LXCM",
+  "ang": 213,
+  "ours": "suMdrnwrIAinkprkwrIprigRhibkwrIburwBlwnhIsuJIhy",
+  "theirs": "suMdrnwrIAinkprkwrIprigRhibkwrI",
+  "sim": 0.795
+ },
+ {
+  "id": "8QHF",
+  "ang": 1196,
+  "ours": "hohudieAwlusiqgurumyilqUmokaupwirauqwrykysvw",
+  "theirs": "hohudieAwlusiqgurumyilqUmokau",
+  "sim": 0.795
+ },
+ {
+  "id": "WPSU",
+  "ang": 467,
+  "ours": "moinivgUqwikaujwgYguribnusUqw",
+  "theirs": "ikaujwgYguribnusUqw",
+  "sim": 0.792
+ },
+ {
+  "id": "7ECE",
+  "ang": 800,
+  "ours": "bolhuBeIAwrwmnwmupiqqpwvnohirsMqBgqqwrno",
+  "theirs": "bolhuBeIAwrwmnwmupiqqpwvno",
+  "sim": 0.788
+ },
+ {
+  "id": "DT3M",
+  "ang": 316,
+  "ours": "hirkYdirvriqAwsunwnikAwiKsuxwieAwsobUJYjudiXsvwirAw",
+  "theirs": "hirkYdirvriqAwsunwnikAwiKsuxwieAw",
+  "sim": 0.786
+ },
+ {
+  "id": "3SDS",
+  "ang": 317,
+  "ours": "bRhmubIcwrunwnkuAwiKsuxwvYijivxusiqgurkymnumMnykMmukrweysojMqumhwduKupwvY",
+  "theirs": "ijivxusiqgurkymnumMnykMmukrweysojMqumhwduKupwvY",
+  "sim": 0.783
+ },
+ {
+  "id": "PZNZ",
+  "ang": 213,
+  "ours": "kwhUjwpkwhUqwpkwhUpUjwhomnymkwhUhogaunukirho",
+  "theirs": "kwhUjwpkwhUqwpkwhUpUjwhomnym",
+  "sim": 0.778
+ },
+ {
+  "id": "A9V1",
+  "ang": 213,
+  "ours": "kwhUqIrkwhUnIrkwhUbydbIcwrnwnkwBgiqipRAho",
+  "theirs": "kwhUqIrkwhUnIrkwhUbydbIcwr",
+  "sim": 0.776
+ },
+ {
+  "id": "9HYL",
+  "ang": 157,
+  "ours": "rwgugauVIguAwryrImhlwcaupdy",
+  "theirs": "rwgugauVIguAwryrI",
+  "sim": 0.773
+ },
+ {
+  "id": "7L11",
+  "ang": 214,
+  "ours": "EuhIpIEEuhIKIEgurihdIEdwnukIEauAwhUisaumnurwqo",
+  "theirs": "EuhIpIEEuhIKIEgurihdIEdwnukIE",
+  "sim": 0.773
+ },
+ {
+  "id": "6N9R",
+  "ang": 855,
+  "ours": "iblwvlubwxIBgqwkIkbIrjIaukI",
+  "theirs": "iblwvlubwxIBgqwkI",
+  "sim": 0.773
+ },
+ {
+  "id": "KFJ9",
+  "ang": 380,
+  "ours": "crnkmlAwnUphirsMqmMqkoaUlwgYswDU",
+  "theirs": "crnkmlAwnUphirsMqmMq",
+  "sim": 0.769
+ },
+ {
+  "id": "T7NB",
+  "ang": 1193,
+  "ours": "bsMqubwxIBgqWkIkbIrjIGru",
+  "theirs": "bsMqubwxIBgqWkI",
+  "sim": 0.769
+ },
+ {
+  "id": "ZN9H",
+  "ang": 380,
+  "ours": "mhwmohnImgnipRApRIiqpRwnkoaUiqAwgYivrlw",
+  "theirs": "mhwmohnImgnipRApRIiqpRwn",
+  "sim": 0.762
+ },
+ {
+  "id": "NW29",
+  "ang": 380,
+  "ours": "BRmmihsoeIsgljgqDMDAMDkoaUjwgYhirjnu",
+  "theirs": "BRmmihsoeIsgljgqDMDAMD",
+  "sim": 0.759
+ },
+ {
+  "id": "NBEZ",
+  "ang": 830,
+  "ours": "rwchunwQhIshweIsMqnwAbcrnghyrhwau",
+  "theirs": "rwchunwQhIshweIsMqnw",
+  "sim": 0.755
+ },
+ {
+  "id": "S7QD",
+  "ang": 214,
+  "ours": "shjkylAndKylrhyPyrBeymylnwnkgursbidprwqo",
+  "theirs": "shjkylAndKylrhyPyrBeymyl",
+  "sim": 0.75
+ },
+ {
+  "id": "9LBS",
+  "ang": 734,
+  "ours": "hirDnuAMimRqvylYvqYkwbIijAwBgqKwieKricrhyinKutYnwhIhliqpliqhirDnYkIBgqwkauimlIvifAweI",
+  "theirs": "hirDnuAMimRqvylYvqYkwbIijAwBgqKwieKricrhyinKutYnwhI",
+  "sim": 0.75
+ },
+ {
+  "id": "YGF5",
+  "ang": 467,
+  "ours": "iliKiliKpiVAwqyqwkiVAw",
+  "theirs": "iliKiliKpiVAw",
+  "sim": 0.743
+ },
+ {
+  "id": "Y8CW",
+  "ang": 93,
+  "ours": "sRIrwgbwxIBgqbyxIjIaukIphirAwkYGirgwvxw",
+  "theirs": "sRIrwgbwxIBgqbyxIjIaukI",
+  "sim": 0.742
+ },
+ {
+  "id": "A0Q2",
+  "ang": 1361,
+  "ours": "lBxMswDsMgyxnwnkhirpUribilKxh",
+  "theirs": "nwnkhirpUribilKxh",
+  "sim": 0.739
+ },
+ {
+  "id": "PCW6",
+  "ang": 213,
+  "ours": "koitjorylwKk®orymnunhoryprYprYhIkauluJIhy",
+  "theirs": "koitjorylwKk®orymnunhory",
+  "sim": 0.738
+ },
+ {
+  "id": "MWJ6",
+  "ang": 947,
+  "ours": "rwmklIkIvwrmhlwjoDYvIrYpUrbwxIkIDunI",
+  "theirs": "joDYvIrYpUrbwxIkIDunI",
+  "sim": 0.737
+ },
+ {
+  "id": "S1CA",
+  "ang": 727,
+  "ours": "bilbiljWauhaubilbiljWaunIkIqyrIibgwrIAwlyqyrwnwaurhwau",
+  "theirs": "nIkIqyrIibgwrIAwlyqyrwnwaurhwau",
+  "sim": 0.729
+ },
+ {
+  "id": "YRD5",
+  "ang": 467,
+  "ours": "bhuqIrQBivAwqyqolivAw",
+  "theirs": "bhuqIrQBivAw",
+  "sim": 0.727
+ },
+ {
+  "id": "CQBC",
+  "ang": 406,
+  "ours": "rwjnBwgnhukmnswdnikCuikCuncwhI",
+  "theirs": "rwjnBwgnhukmnswdn",
+  "sim": 0.723
+ },
+ {
+  "id": "E709",
+  "ang": 467,
+  "ours": "pgaupyqwxwApxwkIAwkmwxw",
+  "theirs": "ApxwkIAwkmwxw",
+  "sim": 0.722
+ },
+ {
+  "id": "G7SF",
+  "ang": 1361,
+  "ours": "pRIqmBgvwnAcuqnwnksMswrswgrqwrxh",
+  "theirs": "nwnksMswrswgrqwrxh",
+  "sim": 0.72
+ },
+ {
+  "id": "VU7V",
+  "ang": 407,
+  "ours": "jopRBBwvYjnimnAwvYhirpRymBgiqhirpRIiqrcY",
+  "theirs": "hirpRymBgiqhirpRIiqrcY",
+  "sim": 0.71
+ },
+ {
+  "id": "C6Q9",
+  "ang": 724,
+  "ours": "imhrvwnuswihbuimhrvwnuswihbumyrwimhrvwnu",
+  "theirs": "imhrvwnuswihbuimhrvwnu",
+  "sim": 0.71
+ },
+ {
+  "id": "RYSB",
+  "ang": 1196,
+  "ours": "loBlhirAiqnIJrbwjYkwieAwfUbYkysvw",
+  "theirs": "loBlhirAiqnIJrbwjY",
+  "sim": 0.706
+ },
+ {
+  "id": "DC1J",
+  "ang": 1196,
+  "ours": "sMswrusmuMdyqwirguoibMdyqwirlYbwpbITulwrhwau",
+  "theirs": "sMswrusmuMdyqwirguoibMdy",
+  "sim": 0.706
+ },
+ {
+  "id": "SLES",
+  "ang": 1196,
+  "ours": "nwmwkhYhauqirBInjwnaumokaubwhdyihbwhdyihbITulw",
+  "theirs": "mokaubwhdyihbwhdyihbITulw",
+  "sim": 0.704
+ },
+ {
+  "id": "ZGAK",
+  "ang": 1360,
+  "ours": "ApjsMimtMqsqpuqRhismrqb´irdYgurmMqRxh",
+  "theirs": "ismrqb´irdYgurmMqRxh",
+  "sim": 0.702
+ },
+ {
+  "id": "3SDN",
+  "ang": 1361,
+  "ours": "crxwribMdmnibD´MisD´Msrbkuslxh",
+  "theirs": "crxwribMdmnibD´M",
+  "sim": 0.696
+ },
+ {
+  "id": "PL8D",
+  "ang": 467,
+  "ours": "bsqRnpihrYAihiniskhrY",
+  "theirs": "AihiniskhrY",
+  "sim": 0.688
+ },
+ {
+  "id": "GNXE",
+  "ang": 212,
+  "ours": "dIndieAwlwpwrbRhmjwkYismrixsuKBey",
+  "theirs": "dIndieAwlwpwrbRhm",
+  "sim": 0.68
+ },
+ {
+  "id": "UK03",
+  "ang": 1165,
+  "ours": "sMfwmrkwjwiepukwrypVYnhIhmhIpichwry",
+  "theirs": "sMfwmrkwjwiepukwry",
+  "sim": 0.679
+ },
+ {
+  "id": "1556",
+  "ang": 408,
+  "ours": "pRBsMigimlIjYiehumnudIjYnwnknwmuimlYApnIdieAwkrhu",
+  "theirs": "nwnknwmuimlYApnIdieAwkrhu",
+  "sim": 0.676
+ },
+ {
+  "id": "8GAV",
+  "ang": 12,
+  "ours": "sUrjueykoruiqAnyknwnkkrqykykyqyvys",
+  "theirs": "sUrjueykoruiqAnyk",
+  "sim": 0.667
+ },
+ {
+  "id": "1MQ6",
+  "ang": 212,
+  "ours": "AkwlpurKAgwiDboDsunqjsokoitAGKey",
+  "theirs": "sunqjsokoitAGKey",
+  "sim": 0.667
+ },
+ {
+  "id": "243Z",
+  "ang": 373,
+  "ours": "shjDuingwvYmMglmnUAwAbqwkauPuinkwlunKwie",
+  "theirs": "shjDuingwvYmMglmnUAw",
+  "sim": 0.667
+ },
+ {
+  "id": "E5W8",
+  "ang": 1196,
+  "ours": "AinlbyVwhauKyivnswkauqyrwpwrunpwieAwbITulw",
+  "theirs": "AinlbyVwhauKyivnswkau",
+  "sim": 0.667
+ },
+ {
+  "id": "254A",
+  "ang": 1361,
+  "ours": "mrxMibsrxMgoibMdhjIvxMhirnwmD´wvxh",
+  "theirs": "mrxMibsrxMgoibMdh",
+  "sim": 0.667
+ },
+ {
+  "id": "JCMG",
+  "ang": 1361,
+  "ours": "qQlgxMpRymnwnkprswdMgurdrsnh",
+  "theirs": "qQlgxMpRymnwnk",
+  "sim": 0.667
+ },
+ {
+  "id": "D9XH",
+  "ang": 801,
+  "ours": "hirBirpuryrihAwjilQlyrwmnwmuinqgweIAYhirdUKibswrnorhwau",
+  "theirs": "inqgweIAYhirdUKibswrnorhwau",
+  "sim": 0.659
+ },
+ {
+  "id": "VHZ5",
+  "ang": 473,
+  "ours": "pMjvwpwieAwiGrquqwhoAwpwkupivqu",
+  "theirs": "qwhoAwpwkupivqu",
+  "sim": 0.652
+ },
+ {
+  "id": "6NWN",
+  "ang": 315,
+  "ours": "bwhirbhYpMcwivicqpwsdweyAMdirbhYqpwpwpkmweyhirAMdrlwpwpupMcwnoauGwkirvyKwilAw",
+  "theirs": "hirAMdrlwpwpupMcwnoauGwkirvyKwilAw",
+  "sim": 0.613
+ },
+ {
+  "id": "KNCH",
+  "ang": 144,
+  "ours": "AMnpauxiQrunkueI",
+  "theirs": "nsUrsismMflonspqdIpnhjloAMnpauxiQrunkueI",
+  "sim": 0.571
+ },
+ {
+  "id": "2AEP",
+  "ang": 141,
+  "ours": "qMbUplµGinvwrsrwiecylwlqI",
+  "theirs": "qwjIrQquKwrhwQIpwKrybwgimlKGrbwrikQYisAwpxyqMbUplµGinvwrsrwiecylwlqI",
+  "sim": 0.538
+ },
+ {
+  "id": "B945",
+  "ang": 1356,
+  "ours": "vrqMiqsuKAwnµdpRswdhismrMqnwnkhirhirhryAinq´rcnwinrmohqy",
+  "theirs": "vrqMiqsuKAwnµdpRswdh",
+  "sim": 0.526
+ },
+ {
+  "id": "5P5B",
+  "ang": 141,
+  "ours": "bwgimlKGrbwrikQYisAwpxy",
+  "theirs": "qwjIrQquKwrhwQIpwKrybwgimlKGrbwrikQYisAwpxyqMbUplµGinvwrsrwiecylwlqI",
+  "sim": 0.505
+ },
+ {
+  "id": "VFE8",
+  "ang": 407,
+  "ours": "crnnsrnnsMqnbMdnsuKosuKupwhInwnkqpiqhrIimlypRymiprI",
+  "theirs": "crnnsrnnsMqnbMdn",
+  "sim": 0.478
+ },
+ {
+  "id": "KZ3E",
+  "ang": 144,
+  "ours": "nsUrsismMflo",
+  "theirs": "nsUrsismMflonspqdIpnhjloAMnpauxiQrunkueI",
+  "sim": 0.462
+ },
+ {
+  "id": "T6YU",
+  "ang": 144,
+  "ours": "nspqdIpnhjlo",
+  "theirs": "nsUrsismMflonspqdIpnhjloAMnpauxiQrunkueI",
+  "sim": 0.462
+ },
+ {
+  "id": "UKKP",
+  "ang": 141,
+  "ours": "qwjIrQquKwrhwQIpwKry",
+  "theirs": "qwjIrQquKwrhwQIpwKrybwgimlKGrbwrikQYisAwpxyqMbUplµGinvwrsrwiecylwlqI",
+  "sim": 0.455
+ }
+]

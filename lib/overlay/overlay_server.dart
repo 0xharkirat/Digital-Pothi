@@ -89,16 +89,28 @@ class OverlayServer {
     bool larivaar = false,
     bool vishraam = true,
     double fontScale = 1.0,
+    double translationScale = 1.0,
+    double teekaScale = 1.0,
+    double translitScale = 1.0,
+    String? nextLine,
+    String text = '#FBF3E3',
+    String accent = '#F0B429',
   }) {
     _last = jsonEncode({
       'g': gurmukhi,
       'en': english,
       'pa': punjabi,
       'roman': roman,
+      'nl': nextLine, // next-line preview (STTM Next Line); null = off
       'bg': background,
       'lv': larivaar,
       'vr': vishraam,
       'fs': fontScale,
+      'ts': translationScale,
+      'ks': teekaScale,
+      'rs': translitScale,
+      'fg': text, // main text colour - follows the Light/Dark display theme
+      'ac': accent, // roman/marker colour
     });
     for (final c in [..._clients]) {
       try {
@@ -144,12 +156,15 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0B1E3B}
 #en{color:rgba(251,243,227,.86);font-family:system-ui,sans-serif;
   font-size:3.2vh;line-height:1.4;margin:2vh 0 0}
 #r{color:#F0B429;font-family:system-ui,sans-serif;font-size:2.6vh;margin:2vh 0 0}
+#nl{font-family:GurbaniAkhar;font-weight:800;line-height:1.6;
+  font-size:6.3vh;margin:3vh 0 0;opacity:.5}
 .empty #g{opacity:.35}
 </style></head><body>
-<div id="stage"><p id="g">ੴ</p><p id="pa"></p><p id="en"></p><p id="r"></p></div>
+<div id="stage"><p id="g">ੴ</p><p id="pa"></p><p id="en"></p><p id="r"></p><p id="nl"></p></div>
 <script>
 var g=document.getElementById('g'),pa=document.getElementById('pa'),
     en=document.getElementById('en'),r=document.getElementById('r'),
+    nl=document.getElementById('nl'),
     stage=document.getElementById('stage');
 // Which content this output renders. ?show=gurmukhi,punjabi -> only those.
 // No param -> everything with content.
@@ -160,12 +175,14 @@ var SHOW=(function(){
 function allow(k){return !SHOW||SHOW.indexOf(k)>=0;}
 // Build the Gurmukhi with vishraam colouring + larivaar - mirrors gurmukhi_text.dart:
 // strip the embedded ; , . pause marks, colour the pause word when vishraam is on.
-function bake(line,larivaar,vishraam){
+// [heavy]/[medium] come from the themed payload, never a fixed palette - hardcoding
+// the dark colours made the pause words vanish on the light (parchment) display.
+function bake(line,larivaar,vishraam,heavy,medium){
   var words=line.split(/\\s+/).filter(Boolean),html='',sep=larivaar?'':' ';
   for(var i=0;i<words.length;i++){
     var w=words[i],c='';
-    if(w.slice(-1)===';'){if(vishraam)c='#F0B429';}
-    else if(w.slice(-1)===','){if(vishraam)c='rgba(251,243,227,.55)';}
+    if(w.slice(-1)===';'){if(vishraam)c=heavy;}
+    else if(w.slice(-1)===','){if(vishraam)c=medium;}
     w=w.replace(/[;,.]/g,'');
     if(!w)continue;
     var esc=w.replace(/&/g,'&amp;').replace(/</g,'&lt;');
@@ -180,11 +197,23 @@ function line(el,key,text){
 }
 function render(d){
   document.body.style.background=d.bg||'#0B1E3B';
-  var fs=d.fs||1;
-  g.style.fontSize=(7*fs)+'vh'; pa.style.fontSize=(3.4*fs)+'vh';
-  en.style.fontSize=(3.2*fs)+'vh'; r.style.fontSize=(2.6*fs)+'vh';
-  g.innerHTML=(allow('gurmukhi')&&d.g)?bake(d.g,d.lv,d.vr!==false):'';
+  // Text colours follow the Light/Dark display theme (fg/ac from the app).
+  var fg=d.fg||'#FBF3E3', ac=d.ac||'#F0B429';
+  g.style.color=fg; pa.style.color=fg; en.style.color=fg; en.style.opacity=.86;
+  r.style.color=ac; nl.style.color=fg;
+  // Vishraam follows the theme, same formula as display_pane.dart: heavy = the
+  // accent, medium = the text colour at 55% (8C alpha on a #rrggbb hex).
+  var vrHeavy=ac, vrMed=/^#[0-9a-fA-F]{6}\$/.test(fg)?fg+'8C':fg;
+  // Per-row scales (STTM's font sizes): Bani, translation, teeka, translit.
+  var fs=d.fs||1, ts=d.ts||1, ks=d.ks||1, rs=d.rs||1;
+  g.style.fontSize=(7*fs)+'vh'; pa.style.fontSize=(3.4*ks)+'vh';
+  en.style.fontSize=(3.2*ts)+'vh'; r.style.fontSize=(2.6*rs)+'vh';
+  nl.style.fontSize=(6.3*fs)+'vh';
+  g.innerHTML=(allow('gurmukhi')&&d.g)?bake(d.g,d.lv,d.vr!==false,vrHeavy,vrMed):'';
   g.style.display=allow('gurmukhi')?'':'none';
+  // Next-line preview (STTM Next Line): Gurbani only, dimmed, gurmukhi-gated.
+  nl.innerHTML=(allow('gurmukhi')&&d.nl)?bake(d.nl,d.lv,false,vrHeavy,vrMed):'';
+  nl.style.display=(allow('gurmukhi')&&d.nl)?'':'none';
   stage.className=d.g?'':'empty';
   line(pa,'punjabi',d.pa);
   line(en,'english',d.en);

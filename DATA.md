@@ -1,5 +1,7 @@
 # Data Sources and Fidelity
 
+
+**Empirical DB comparison** (STTM shipped Realm vs ShabadOS vs ours, field-by-field with row counts): [DB-COMPARISON.md](DB-COMPARISON.md).
 Where the Gurbani data comes from, how it relates to what STTM ships, and how we keep it current.
 Written because the bani-length work surfaced that the open data and STTM's data are not the same thing.
 

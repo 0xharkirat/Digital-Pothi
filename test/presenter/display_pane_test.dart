@@ -45,4 +45,30 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets('next-line preview renders dimmed Gurbani when set', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrap(
+        const DisplayPane(
+          gurmukhi: 'ਪਹਿਲੀ ਤੁਕ',
+          display: LineDisplay.empty,
+          nextLine: 'ਅਗਲੀ ਤੁਕ',
+        ),
+      ),
+    );
+    final preview = tester.widget<Text>(find.text('ਅਗਲੀ ਤੁਕ'));
+    expect(preview.style?.fontFamily, kGurmukhiFont);
+    // Dimmed to ~0.5 alpha.
+    expect(preview.style?.color?.a, closeTo(0.5, 0.01));
+  });
+
+  testWidgets('no next-line row when nextLine is null', (tester) async {
+    await tester.pumpWidget(
+      wrap(const DisplayPane(gurmukhi: 'ਤੁਕ', display: LineDisplay.empty)),
+    );
+    // Only the one line renders - no dimmed preview.
+    expect(find.byType(Text), findsOneWidget);
+  });
 }
