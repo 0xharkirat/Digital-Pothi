@@ -50,6 +50,12 @@ destination: the open decisions in Epics 1 and 3 are all made.
   work is light-theme contrast + missing semantics + a focus-steal, plus one real
   bug (overlay hardcodes the dark palette, so light vishraam is invisible).
 
+- [T1 · Epic 1 v1 scope](tickets/T1-epic1-scope.md) - the Sunday program on
+  autopilot, fixed banis first, kirtan in shadow mode; bar and modules in
+  [../spec/2026-10-19-v1-sunday-autopilot.md](../spec/2026-10-19-v1-sunday-autopilot.md).
+- [T2 · On-device vs network](tickets/T2-ondevice-vs-network.md) - on-device at
+  runtime; only the developer machines use the network.
+
 ## Not yet specified
 
 <!-- in-scope fog; graduates into tickets as the roots resolve -->
@@ -78,8 +84,8 @@ destination: the open decisions in Epics 1 and 3 are all made.
 
 | Ticket | Type | Status | Blocked by |
 |---|---|---|---|
-| [T1 · Epic 1 v1 scope & sequence](tickets/T1-epic1-scope.md) | grilling | open | — |
-| [T2 · AI-follow: on-device vs network](tickets/T2-ondevice-vs-network.md) | grilling | open | — |
+| [T1 · Epic 1 v1 scope & sequence](tickets/T1-epic1-scope.md) | grilling | closed | — |
+| [T2 · AI-follow: on-device vs network](tickets/T2-ondevice-vs-network.md) | grilling | closed | — |
 | [T3 · UX north-star](tickets/T3-ux-north-star.md) | prototype | open | — |
 | [T4 · WCAG AA audit + checklist](tickets/T4-wcag-audit.md) | research | closed | — |
 | [T5 · A11y remediation plan](tickets/T5-a11y-remediation.md) | grilling | open | T4 (closed) |
