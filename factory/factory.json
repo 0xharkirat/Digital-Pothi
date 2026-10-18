@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "name": "gurbani-live",
+  "adapter": "flutter",
+  "repo": {
+    "path": ".",
+    "github": "0xharkirat/Digital-Pothi",
+    "base": "main"
+  },
+  "work": {
+    "source": "github-issues",
+    "skipLabels": ["epic", "deferred"]
+  },
+  "setup": {
+    "copy": [
+      "assets/models/silero_vad.onnx",
+      "assets/corpus/gurbani.sqlite",
+      "assets/corpus/sundar_gutka.sqlite"
+    ],
+    "steps": [
+      { "name": "packages", "run": "flutter pub get", "needs": ["flutter"] }
+    ]
+  },
+  "tools": {
+    "flutter": "flutter --version",
+    "patrol": "patrol --version"
+  },
+  "gates": {
+    "levels": {
+      "fast": ["types", "lint"],
+      "full": ["types", "lint", "test", "floor"],
+      "deep": ["types", "lint", "test", "floor", "build"]
+    },
+    "commands": {
+      "types": [
+        { "name": "analyze", "run": "flutter analyze --fatal-infos", "needs": ["flutter"] }
+      ],
+      "lint": [
+        { "name": "format", "run": "dart format --output=none --set-exit-if-changed .", "needs": ["flutter"] }
+      ],
+      "test": [
+        { "name": "unit", "run": "flutter test", "needs": ["flutter"] }
+      ],
+      "build": [
+        { "name": "app", "run": "flutter build macos --debug", "needs": ["flutter"], "timeout": 3600 }
+      ]
+    }
+  },
+  "floor": ["common", "dart"],
+  "proof": [
+    {
+      "name": "app",
+      "kind": "command",
+      "when": ["lib/**"],
+      "run": "patrol test -t integration_test/app_test.dart --device macos",
+      "needs": ["patrol"],
+      "timeout": 3600,
+      "exclusive": true
+    }
+  ],
+  "paths": {
+    "risky": [
+      "pubspec.yaml",
+      "pubspec.lock",
+      "**/Info.plist",
+      "**/*.entitlements",
+      "**/AndroidManifest.xml",
+      "**/*.gradle*"
+    ],
+    "tests": ["test/**", "integration_test/**"],
+    "docs": ["**/*.md"]
+  },
+  "limits": { "maxChangedLines": 400 }
+}
